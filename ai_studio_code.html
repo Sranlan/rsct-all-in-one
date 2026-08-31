@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart School All-in-One Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Prompt & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Prompt', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#f0f9ff', 100: '#e0f2fe', 500: '#0284c7', 600: '#0369a1', 700: '#075985' },
+            warm: { 50: '#fffbeb', 100: '#fef3c7', 500: '#f59e0b' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #f8fafc; color: #1e293b; }
+    .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-brand-100">
+
+  <!-- TOP NAVBAR -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-100">
+          <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <span class="font-bold text-lg text-slate-800 tracking-tight">SmartSchool Hub</span>
+          <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-xs font-semibold bg-sky-100 text-sky-700 rounded-full">ห้อง ม.5/1</span>
+        </div>
+      </div>
+
+      <!-- User Role Selector / Switcher -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-xl">
+          <select id="userSelector" onchange="changeUser(this.value)" class="bg-transparent text-xs sm:text-sm font-medium text-slate-700 focus:outline-none px-2 py-1 cursor-pointer">
+            <optgroup label="👑 ครูที่ปรึกษา">
+              <option value="TEACHER">ครูนพมาศ หลีเจริญ (คุณครู)</option>
+            </optgroup>
+            <optgroup label="🎒 นักเรียน ม.5/1" id="studentOptions"></optgroup>
+          </select>
+        </div>
+        <div id="userBadge" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold rounded-xl">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="roleName">นักเรียน</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- 1. LIVE CAMPUS STATUS TICKER -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <!-- Status: โรงเรียน -->
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <i data-lucide="school" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 font-medium">สถานะโรงเรียน</p>
+          <p class="text-sm font-semibold text-emerald-600">เปิดเรียนปกติ</p>
+        </div>
+      </div>
+      <!-- Status: สหกรณ์ -->
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 font-medium">สหกรณ์โรงเรียน</p>
+          <p class="text-sm font-semibold text-sky-600">เปิด (07:30 - 16:00)</p>
+        </div>
+      </div>
+      <!-- Status: ห้องสมุด -->
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 font-medium">ห้องสมุด / ที่นั่ง</p>
+          <p class="text-sm font-semibold text-amber-600">ว่าง (มีที่นั่ง)</p>
+        </div>
+      </div>
+      <!-- Status: ยอดมาเรียน -->
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+          <i data-lucide="users" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400 font-medium">มาเรียนทั้ง รร.</p>
+          <p class="text-sm font-semibold text-indigo-600">1,248 / 1,300 คน</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. MAIN DASHBOARD SPLIT -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEFT 2 COLS: TABS (ตารางเรียน / สถิติห้อง 5/1 / ห้องว่าง) -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- PR Banner Card -->
+        <div class="bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
+          <div class="relative z-10 space-y-2 max-w-lg">
+            <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs font-semibold tracking-wide">📢 ประชาสัมพันธ์ รร.</span>
+            <h2 class="text-xl sm:text-2xl font-bold">ยินดีต้อนรับสู่ปีการศึกษา 2569</h2>
+            <p class="text-sm text-sky-100 font-light">กำหนดการสอบกลางภาค ม.ปลาย วันที่ 20-22 กันยายนนี้ กรุณาเตรียมตัวและส่งการบ้านวิชาโครงงานให้ตรงเวลา</p>
+          </div>
+          <i data-lucide="sparkles" class="absolute right-4 bottom-2 w-28 h-28 text-white/10 pointer-events-none"></i>
+        </div>
+
+        <!-- Room 5/1 Attendance & Details -->
+        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-sm space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                <i data-lucide="clipboard-check" class="text-sky-500 w-5 h-5"></i> เช็คชื่อนักเรียน ม.5/1 วันนี้
+              </h3>
+              <p class="text-xs text-slate-400">ครูที่ปรึกษา: คุณครูนพมาศ หลีเจริญ (รวม 30 คน: ชาย 11, หญิง 19)</p>
+            </div>
+            <div id="attendanceStats" class="flex gap-2 text-xs font-semibold">
+              <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600">มา 30</span>
+              <span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600">ขาด/ลา 0</span>
+            </div>
+          </div>
+
+          <!-- Students Scroll Table -->
+          <div class="border border-slate-100 rounded-2xl overflow-hidden max-h-72 overflow-y-auto">
+            <table class="w-full text-left text-xs sm:text-sm">
+              <thead class="bg-slate-50 text-slate-500 font-medium sticky top-0 border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">เลขที่</th>
+                  <th class="py-2.5 px-3">รหัส</th>
+                  <th class="py-2.5 px-3">ชื่อ - นามสกุล</th>
+                  <th class="py-2.5 px-3 text-right">สถานะ</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody" class="divide-y divide-slate-100">
+                <!-- Injected by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Real-time Special Room Status -->
+        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+            <i data-lucide="door-open" class="text-indigo-500 w-5 h-5"></i> เช็คห้องเรียนพิเศษ & ลานกิจกรรม
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-100 flex justify-between items-center">
+              <div>
+                <p class="font-medium text-slate-700 text-sm">ห้องคอมพิวเตอร์ 1</p>
+                <p class="text-xs text-slate-400">อาคาร 3 ชั้น 2</p>
+              </div>
+              <span class="px-2 py-1 bg-emerald-500 text-white rounded-lg text-xs font-semibold">ว่าง</span>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-rose-50/60 border border-rose-100 flex justify-between items-center">
+              <div>
+                <p class="font-medium text-slate-700 text-sm">แล็บวิทยาศาสตร์</p>
+                <p class="text-xs text-slate-400">ม.6/2 กำลังเรียน</p>
+              </div>
+              <span class="px-2 py-1 bg-rose-500 text-white rounded-lg text-xs font-semibold">ไม่ว่าง</span>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-100 flex justify-between items-center">
+              <div>
+                <p class="font-medium text-slate-700 text-sm">สนามฟุตซอล</p>
+                <p class="text-xs text-slate-400">ลานกีฬาในร่ม</p>
+              </div>
+              <span class="px-2 py-1 bg-emerald-500 text-white rounded-lg text-xs font-semibold">ว่าง</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT 1 COL: LOST & FOUND / POSTS COMMUNITY -->
+      <div class="space-y-6">
+
+        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-sm flex flex-col h-full space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center">
+                <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-800 text-base">กระดานนักเรียน</h3>
+                <p class="text-xs text-slate-400">ของหาย / ขอความช่วยเหลือ</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Create Post Trigger Form -->
+          <div class="bg-slate-50 p-3.5 rounded-2xl space-y-2 border border-slate-100">
+            <input id="postTitle" type="text" placeholder="หัวข้อ (เช่น ตามหากระเป๋าสตางค์สีดำ...)" class="w-full text-xs sm:text-sm px-3 py-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-sky-500">
+            <div class="flex gap-2">
+              <select id="postCategory" class="text-xs bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 focus:outline-none">
+                <option value="LOST">🔍 ตามหาของหาย</option>
+                <option value="FOUND">🎁 เจอของตกหล่น</option>
+                <option value="HELP">🙋 ถามการบ้าน/ทั่วไป</option>
+              </select>
+              <button onclick="createPost()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold py-1.5 px-3 rounded-xl transition flex items-center justify-center gap-1">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i> โพสต์
+              </button>
+            </div>
+          </div>
+
+          <!-- Posts Feed List -->
+          <div id="postsFeed" class="space-y-3 flex-1 overflow-y-auto max-h-[480px] pr-1">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer class="mt-auto py-6 border-t border-slate-200 text-center text-xs text-slate-400">
+    SmartSchool Hub © 2026 • จัดทำเพื่อการนำเสนอโครงงาน ม.5/1
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // 30 Students Data extracted from the document
+    const rawStudents = [
+      { id: "07925", name: "นางสาวณูรอัลภ์ มะยะเอ๊ะ", no: 1, gender: "F" },
+      { id: "07929", name: "นางสาวอาซียัน มาหามะ", no: 2, gender: "F" },
+      { id: "07955", name: "นางสาวฟิรดาว เทือกเถาว์", no: 3, gender: "F" },
+      { id: "07959", name: "นางสาวจารุวรรณ แสงสุวรรณ์", no: 4, gender: "F" },
+      { id: "07960", name: "นางสาวชัชฎาภรณ์ แก้วเมฆ", no: 5, gender: "F" },
+      { id: "07968", name: "นายกันตพัฒน์ ประทุมสุวรรณ", no: 6, gender: "M" },
+      { id: "07969", name: "นายธีรภัทร์ ทองเกตุ", no: 7, gender: "M" },
+      { id: "07970", name: "นายศุทธสิน กุสะวิโร", no: 8, gender: "M" },
+      { id: "07971", name: "นายสมพงค์ สามเมือง", no: 9, gender: "M" },
+      { id: "07972", name: "นายนัสมี สะมะแอ", no: 10, gender: "M" },
+      { id: "07973", name: "นายอิลฮัม เลาะวิง", no: 11, gender: "M" },
+      { id: "07974", name: "นายอดิลัน สาเระ", no: 12, gender: "M" },
+      { id: "07975", name: "นางสาวซีตีมารียัม อามีนา", no: 13, gender: "F" },
+      { id: "07977", name: "นางสาวนูรซูลฟา แวบือซา", no: 14, gender: "F" },
+      { id: "07978", name: "นางสาวนูรฟา แยมรอแย", no: 15, gender: "F" },
+      { id: "07980", name: "นางสาวมูเทียร่า วาแม", no: 16, gender: "F" },
+      { id: "07981", name: "นางสาวสุฮัยลา ลอนา", no: 17, gender: "F" },
+      { id: "07986", name: "นางสาวณิชาดา รสกลิ่น", no: 18, gender: "F" },
+      { id: "07988", name: "นางสาวธิดารัตน์ ศรีก่อเกื้อ", no: 19, gender: "F" },
+      { id: "07991", name: "นางสาวปัณณภัทร ผุสิง", no: 20, gender: "F" },
+      { id: "07994", name: "นางสาวสุภาสินี หลานวงค์", no: 21, gender: "F" },
+      { id: "08528", name: "นายอิรฟัน บือซา", no: 22, gender: "M" },
+      { id: "08530", name: "นายอาลีฟ ปากอ", no: 23, gender: "M" },
+      { id: "08531", name: "นางสาวนูร์ซีฮา อาบูวะ", no: 24, gender: "F" },
+      { id: "08532", name: "นางสาวรูสรา โต๊ะแว๊ะ", no: 25, gender: "F" },
+      { id: "08533", name: "นางสาวอัลฮีดายะห์ สาและ", no: 26, gender: "F" },
+      { id: "08585", name: "นายซะห์รูลอามาล มะดารี", no: 27, gender: "M" },
+      { id: "08593", name: "นางสาวซูนิตา เจะหะ", no: 28, gender: "F" },
+      { id: "08602", name: "นายซัมซน ณ รือเสาะ", no: 29, gender: "M" },
+      { id: "08603", name: "นางสาวนูรีซา สะอุ", no: 30, gender: "F" }
+    ];
+
+    // Local Storage Mock Data
+    let currentUser = { id: "07925", name: "นางสาวณูรอัลภ์ มะยะเอ๊ะ", role: "STUDENT" };
+    let attendanceMap = JSON.parse(localStorage.getItem('att_5_1')) || {};
+    
+    // Default initial posts
+    let posts = JSON.parse(localStorage.getItem('school_posts')) || [
+      {
+        id: 1,
+        title: "ใครเห็นกระเป๋าดินสอสีดำลายตาราง ลืมไว้โรงอาหารคาบ 3 บ้างครับ 🥺",
+        category: "LOST",
+        authorName: "นายกันตพัฒน์ ประทุมสุวรรณ (เลขที่ 6)",
+        authorId: "07968",
+        status: "OPEN",
+        time: "10 นาทีที่แล้ว"
+      },
+      {
+        id: 2,
+        title: "เจอกุญแจรถมอเตอร์ไซค์พร้อมพวงกุญแจตุ๊กตาหมี หน้าห้องคอม 1 นำส่งห้องธุรการแล้ว",
+        category: "FOUND",
+        authorName: "คุณครูนพมาศ หลีเจริญ",
+        authorId: "TEACHER",
+        status: "RESOLVED",
+        time: "1 ชั่วโมงที่แล้ว"
+      }
+    ];
+
+    // Initialize Dropdowns and UI
+    function init() {
+      const select = document.getElementById("studentOptions");
+      rawStudents.forEach(st => {
+        const opt = document.createElement("option");
+        opt.value = st.id;
+        opt.innerText = `${st.no}. [${st.id}] ${st.name}`;
+        select.appendChild(opt);
+      });
+      renderAttendance();
+      renderPosts();
+      lucide.createIcons();
+    }
+
+    function changeUser(val) {
+      if(val === "TEACHER") {
+        currentUser = { id: "TEACHER", name: "ครูนพมาศ หลีเจริญ", role: "TEACHER" };
+        document.getElementById("roleName").innerText = "ครูที่ปรึกษา";
+      } else {
+        const found = rawStudents.find(s => s.id === val);
+        currentUser = { id: found.id, name: found.name, role: "STUDENT", no: found.no };
+        document.getElementById("roleName").innerText = `นักเรียน (เลขที่ ${found.no})`;
+      }
+      renderPosts();
+    }
+
+    function toggleAttendance(studentId) {
+      if(currentUser.role !== 'TEACHER') {
+        alert("⚠️ เฉพาะคุณครูเท่านั้นที่สามารถกดแก้ไขสถานะเช็คชื่อได้ครับ");
+        return;
+      }
+      const current = attendanceMap[studentId] || 'PRESENT';
+      attendanceMap[studentId] = current === 'PRESENT' ? 'ABSENT' : 'PRESENT';
+      localStorage.setItem('att_5_1', JSON.stringify(attendanceMap));
+      renderAttendance();
+    }
+
+    function renderAttendance() {
+      const tbody = document.getElementById("studentTableBody");
+      tbody.innerHTML = "";
+      let presentCount = 0;
+
+      rawStudents.forEach(st => {
+        const isPresent = (attendanceMap[st.id] || 'PRESENT') === 'PRESENT';
+        if(isPresent) presentCount++;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/80 transition";
+        tr.innerHTML = `
+          <td class="py-2.5 px-3 text-slate-400 font-medium">${st.no}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-500">${st.id}</td>
+          <td class="py-2.5 px-3 font-medium text-slate-800">${st.name}</td>
+          <td class="py-2.5 px-3 text-right">
+            <button onclick="toggleAttendance('${st.id}')" class="px-2 py-1 text-xs font-semibold rounded-lg transition ${
+              isPresent 
+              ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' 
+              : 'bg-rose-50 text-rose-600 hover:bg-rose-100'
+            }">
+              ${isPresent ? '✓ มาเรียน' : '✗ ขาด/ลา'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("attendanceStats").innerHTML = `
+        <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600">มา ${presentCount}</span>
+        <span class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600">ขาด/ลา ${30 - presentCount}</span>
+      `;
+    }
+
+    function createPost() {
+      const input = document.getElementById("postTitle");
+      const category = document.getElementById("postCategory").value;
+      if (!input.value.trim()) return alert("กรุณาพิมพ์ข้อความก่อนโพสต์");
+
+      const authorLabel = currentUser.role === 'TEACHER' 
+        ? currentUser.name 
+        : `${currentUser.name} (เลขที่ ${currentUser.no})`;
+
+      const newPost = {
+        id: Date.now(),
+        title: input.value.trim(),
+        category: category,
+        authorName: authorLabel,
+        authorId: currentUser.id,
+        status: "OPEN",
+        time: "เมื่อสักครู่"
+      };
+
+      posts.unshift(newPost);
+      localStorage.setItem('school_posts', JSON.stringify(posts));
+      input.value = "";
+      renderPosts();
+    }
+
+    function toggleResolve(id) {
+      posts = posts.map(p => {
+        if(p.id === id) {
+          return { ...p, status: p.status === 'OPEN' ? 'RESOLVED' : 'OPEN' };
+        }
+        return p;
+      });
+      localStorage.setItem('school_posts', JSON.stringify(posts));
+      renderPosts();
+    }
+
+    function renderPosts() {
+      const feed = document.getElementById("postsFeed");
+      feed.innerHTML = "";
+
+      const catBadge = {
+        LOST: { text: "ตามหาของ", bg: "bg-rose-50 text-rose-600 border-rose-200" },
+        FOUND: { text: "พบของ", bg: "bg-emerald-50 text-emerald-600 border-emerald-200" },
+        HELP: { text: "ช่วยเหลือ", bg: "bg-sky-50 text-sky-600 border-sky-200" }
+      };
+
+      posts.forEach(p => {
+        const isResolved = p.status === 'RESOLVED';
+        const card = document.createElement("div");
+        card.className = `p-3.5 rounded-2xl border transition ${
+          isResolved ? 'bg-slate-50/70 border-slate-200 opacity-75' : 'bg-white border-slate-100 shadow-sm'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${catBadge[p.category].bg}">
+              ${catBadge[p.category].text}
+            </span>
+            <span class="text-[11px] text-slate-400">${p.time}</span>
+          </div>
+          <p class="text-xs sm:text-sm font-medium ${isResolved ? 'line-through text-slate-400' : 'text-slate-700'} mb-2">
+            ${p.title}
+          </p>
+          <div class="flex items-center justify-between text-[11px] pt-2 border-t border-slate-100">
+            <span class="text-slate-400 truncate max-w-[140px]">โดย ${p.authorName}</span>
+            ${
+              (currentUser.id === p.authorId || currentUser.role === 'TEACHER')
+              ? `<button onclick="toggleResolve(${p.id})" class="text-xs font-semibold ${
+                  isResolved ? 'text-slate-400 hover:text-slate-600' : 'text-emerald-600 hover:underline'
+                }">
+                  ${isResolved ? '↩ เปิดโพสต์อีกครั้ง' : '✓ ทำเครื่องหมายว่าพบแล้ว'}
+                </button>`
+              : (isResolved ? '<span class="text-emerald-600 font-bold">✓ สิ้นสุดแล้ว</span>' : '')
+            }
+          </div>
+        `;
+        feed.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
