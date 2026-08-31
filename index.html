@@ -12,9 +12,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Firebase SDK -->
+  <!-- Firebase App & Realtime Database SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
     tailwind.config = {
@@ -280,7 +280,7 @@
     RSCT SCHOOL HUB © 2026 • CLOUD REAL-TIME EDITION
   </footer>
 
-  <!-- SCRIPT LOGIC -->
+  <!-- SCRIPT LOGIC (REALTIME DATABASE CONNECTED) -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAbB3lt210Cj0rd2dKjo86j9kdJzlWjn-8",
@@ -293,14 +293,12 @@
       measurementId: "G-YXJVEJED8T"
     };
 
-    let db = null;
+    let rtdb = null;
     let isCloudReady = false;
     try {
-      if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "AIzaSy_YOUR_API_KEY_HERE") {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
-        isCloudReady = true;
-      }
+      firebase.initializeApp(firebaseConfig);
+      rtdb = firebase.database();
+      isCloudReady = true;
     } catch(e) {
       console.warn("Firebase Init Error:", e);
     }
@@ -363,9 +361,7 @@
     };
 
     function init() {
-      // เรนเดอร์ข้อมูลขึ้นหน้าจอก่อนทันที ไม่ต้องรอคลาวด์
       renderAllUI();
-
       if (!currentUser) {
         document.getElementById('loginModal').style.display = 'flex';
       } else {
@@ -418,48 +414,65 @@
         document.querySelectorAll('.teacher-only').forEach(el => el.classList.add('hidden'));
       }
 
-      renderAllUI();
       if (isCloudReady) {
         listenCloudDatabase();
       }
     }
 
+    // ⚡ REAL-TIME CLOUD LISTENER (ฟังข้อมูลจาก Realtime Database)
     function listenCloudDatabase() {
-      try {
-        db.collection("school").doc("facilities").onSnapshot(doc => {
-          if (doc.exists) localData.facilities = doc.data().list || defaultFacilities;
-          else db.collection("school").doc("facilities").set({ list: defaultFacilities });
+      // 1. Facilities
+      rtdb.ref("school/facilities").on("value", snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          localData.facilities = val;
           renderFacilities();
-        }, err => console.warn(err));
+        } else {
+          rtdb.ref("school/facilities").set(defaultFacilities);
+        }
+      }, err => {
+        console.error("Permission error:", err);
+      });
 
-        db.collection("school").doc("status").onSnapshot(doc => {
-          if (doc.exists) {
-            const data = doc.data();
-            localData.isCoopOpen = data.isCoopOpen ?? true;
-            localData.schoolAttendance = data.schoolAttendance || "None";
-          }
+      // 2. Status
+      rtdb.ref("school/status").on("value", snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          localData.isCoopOpen = val.isCoopOpen ?? true;
+          localData.schoolAttendance = val.schoolAttendance || "None";
           renderStatusUI();
-        }, err => console.warn(err));
+        }
+      });
 
-        db.collection("school").doc("announcements").onSnapshot(doc => {
-          if (doc.exists) localData.announcements = doc.data().list || [];
+      // 3. Announcements
+      rtdb.ref("school/announcements").on("value", snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          localData.announcements = val;
           renderAnnouncements();
-        }, err => console.warn(err));
+        }
+      });
 
-        db.collection("school").doc("posts").onSnapshot(doc => {
-          if (doc.exists) localData.posts = doc.data().list || [];
+      // 4. Posts
+      rtdb.ref("school/posts").on("value", snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          localData.posts = val;
           renderFeed();
-        }, err => console.warn(err));
+        }
+      });
 
-        db.collection("school").doc("attendance_51").onSnapshot(doc => {
-          if (doc.exists) localData.attendance51 = doc.data().map || {};
+      // 5. Attendance 5/1
+      rtdb.ref("school/attendance_51").on("value", snapshot => {
+        const val = snapshot.val();
+        if (val) {
+          localData.attendance51 = val;
           renderClassroom();
-        }, err => console.warn(err));
-      } catch(e) {
-        console.warn("Cloud Listener error:", e);
-      }
+        }
+      });
     }
 
+    // --- ACTIONS SYNCED TO REALTIME CLOUD ---
     function toggleFacility(id) {
       if (currentUser.role !== 'TEACHER') return;
       localData.facilities = localData.facilities.map(f => {
@@ -470,14 +483,20 @@
         return f;
       });
       renderFacilities();
-      if (isCloudReady) db.collection("school").doc("facilities").set({ list: localData.facilities });
+      if (isCloudReady) {
+        rtdb.ref("school/facilities").set(localData.facilities).catch(err => {
+          alert("⚠️ ส่งข้อมูลขึ้น Cloud ไม่สำเร็จ: กรุณาตรวจแท็บ Rules ใน Firebase ให้เป็น .read: true, .write: true");
+        });
+      }
     }
 
     function toggleCoopCloud() {
       if (currentUser.role !== 'TEACHER') return;
       localData.isCoopOpen = !localData.isCoopOpen;
       renderStatusUI();
-      if (isCloudReady) db.collection("school").doc("status").set({ isCoopOpen: localData.isCoopOpen, schoolAttendance: localData.schoolAttendance }, { merge: true });
+      if (isCloudReady) {
+        rtdb.ref("school/status").update({ isCoopOpen: localData.isCoopOpen });
+      }
     }
 
     function editSchoolAttendanceCloud() {
@@ -486,7 +505,9 @@
       if (val !== null) {
         localData.schoolAttendance = val.trim() || "None";
         renderStatusUI();
-        if (isCloudReady) db.collection("school").doc("status").set({ schoolAttendance: localData.schoolAttendance }, { merge: true });
+        if (isCloudReady) {
+          rtdb.ref("school/status").update({ schoolAttendance: localData.schoolAttendance });
+        }
       }
     }
 
@@ -497,7 +518,9 @@
 
       localData.announcements.unshift({ id: Date.now(), title, content, author: `${currentUser.name} (${currentUser.room})`, date: "วันนี้" });
       renderAnnouncements();
-      if (isCloudReady) db.collection("school").doc("announcements").set({ list: localData.announcements });
+      if (isCloudReady) {
+        rtdb.ref("school/announcements").set(localData.announcements);
+      }
 
       closeAnnounceModal();
       document.getElementById('annTitle').value = "";
@@ -508,7 +531,9 @@
       if (!confirm("ต้องการลบประกาศนี้ใช่หรือไม่?")) return;
       localData.announcements.splice(idx, 1);
       renderAnnouncements();
-      if (isCloudReady) db.collection("school").doc("announcements").set({ list: localData.announcements });
+      if (isCloudReady) {
+        rtdb.ref("school/announcements").set(localData.announcements);
+      }
     }
 
     function submitPostCloud() {
@@ -528,23 +553,30 @@
       });
 
       renderFeed();
-      if (isCloudReady) db.collection("school").doc("posts").set({ list: localData.posts });
+      if (isCloudReady) {
+        rtdb.ref("school/posts").set(localData.posts);
+      }
       input.value = "";
     }
 
     function togglePostResolve(id) {
       localData.posts = localData.posts.map(p => p.id === id ? { ...p, status: p.status === 'OPEN' ? 'RESOLVED' : 'OPEN' } : p);
       renderFeed();
-      if (isCloudReady) db.collection("school").doc("posts").set({ list: localData.posts });
+      if (isCloudReady) {
+        rtdb.ref("school/posts").set(localData.posts);
+      }
     }
 
     function toggleStudentAtt(id) {
       if (currentUser.role !== 'TEACHER') return;
       localData.attendance51[id] = (localData.attendance51[id] || 'PRESENT') === 'PRESENT' ? 'ABSENT' : 'PRESENT';
       renderClassroom();
-      if (isCloudReady) db.collection("school").doc("attendance_51").set({ map: localData.attendance51 });
+      if (isCloudReady) {
+        rtdb.ref("school/attendance_51").set(localData.attendance51);
+      }
     }
 
+    // --- UI RENDERERS ---
     function renderStatusUI() {
       const textEl = document.getElementById('coopStatusText');
       textEl.innerText = localData.isCoopOpen ? "เปิด (10:00-16:00)" : "ปิดชั่วคราว";
