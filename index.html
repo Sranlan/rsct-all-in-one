@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart School Portal (Neo-Brutalism)</title>
+  <title>Smart School Portal (Real-time Cloud)</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Prompt -->
@@ -12,6 +12,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Firebase SDK (Compat Version สำหรับ Single HTML File) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -20,9 +24,7 @@
           colors: {
             brand: {
               red: '#dc2626',
-              darkRed: '#991b1b',
               lightRed: '#fee2e2',
-              black: '#09090b',
               surface: '#f4f4f5'
             }
           },
@@ -30,7 +32,6 @@
             'brutal': '4px 4px 0px 0px #09090b',
             'brutal-sm': '2px 2px 0px 0px #09090b',
             'brutal-lg': '6px 6px 0px 0px #09090b',
-            'brutal-red': '4px 4px 0px 0px #dc2626'
           }
         }
       }
@@ -50,10 +51,9 @@
 </head>
 <body class="min-h-screen flex flex-col font-sans selection:bg-brand-red selection:text-white">
 
-  <!-- 1. LOGIN SCREEN (NEO-BRUTALIST MODAL) -->
+  <!-- 1. LOGIN SCREEN -->
   <div id="loginModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-center justify-center p-4">
     <div class="bg-white border-4 border-black p-6 sm:p-8 max-w-md w-full shadow-brutal-lg relative">
-      <!-- Brutalist Header Tag -->
       <div class="absolute -top-5 left-6 bg-brand-red text-white border-2 border-black px-3 py-1 text-xs font-black uppercase tracking-wider shadow-brutal-sm">
         AUTH REQUIRED
       </div>
@@ -63,7 +63,7 @@
           <i data-lucide="school" class="w-7 h-7 text-brand-red"></i>
         </div>
         <h2 class="text-2xl font-black uppercase tracking-tight text-black">เข้าสู่ระบบโรงเรียน</h2>
-        <p class="text-xs font-semibold text-slate-500">Smart School Portal • All-in-One Information</p>
+        <p class="text-xs font-semibold text-slate-500">Smart School Portal • Real-time Cloud Sync</p>
       </div>
 
       <div class="space-y-4">
@@ -93,7 +93,9 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="font-black text-lg sm:text-xl uppercase tracking-tighter text-black">RSCT SCHOOL</span>
-          <span class="hidden md:inline-block px-2 py-0.5 text-[10px] font-black bg-black text-white uppercase border border-black">HUB</span>
+          <span class="hidden md:inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-black bg-emerald-400 text-black uppercase border border-black">
+            <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span> LIVE CLOUD
+          </span>
         </div>
       </div>
 
@@ -110,12 +112,11 @@
     </div>
   </header>
 
-  <!-- 3. MAIN DASHBOARD CONTENT -->
+  <!-- 3. MAIN CONTENT -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
     <!-- 3.1 STATUS TICKER CARDS -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <!-- Ticker: รร. -->
       <div class="bg-white border-2 border-black p-4 shadow-brutal relative">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 bg-emerald-400 border-2 border-black flex items-center justify-center shrink-0">
@@ -128,7 +129,6 @@
         </div>
       </div>
 
-      <!-- Ticker: สหกรณ์ -->
       <div class="bg-white border-2 border-black p-4 shadow-brutal flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 bg-yellow-300 border-2 border-black flex items-center justify-center shrink-0">
@@ -139,10 +139,9 @@
             <p id="coopStatusText" class="text-xs sm:text-sm font-black text-black">เปิด (10:00-16:00)</p>
           </div>
         </div>
-        <button id="btnToggleCoop" onclick="toggleCoop()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition">สลับ</button>
+        <button id="btnToggleCoop" onclick="toggleCoopCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition">สลับ</button>
       </div>
 
-      <!-- Ticker: ยอดนักเรียน -->
       <div class="bg-white border-2 border-black p-4 shadow-brutal flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 bg-brand-lightRed border-2 border-black flex items-center justify-center shrink-0 text-brand-red">
@@ -153,10 +152,9 @@
             <p id="schoolAttendanceCount" class="text-xs sm:text-sm font-black text-brand-red">None</p>
           </div>
         </div>
-        <button onclick="editSchoolAttendance()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition">แก้ไข</button>
+        <button onclick="editSchoolAttendanceCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition">แก้ไข</button>
       </div>
 
-      <!-- Ticker: โรงอาหาร -->
       <div class="bg-white border-2 border-black p-4 shadow-brutal flex items-center gap-3">
         <div class="w-9 h-9 bg-sky-300 border-2 border-black flex items-center justify-center shrink-0">
           <i data-lucide="utensils" class="w-5 h-5 text-black"></i>
@@ -168,14 +166,14 @@
       </div>
     </section>
 
-    <!-- 3.2 MAIN SPLIT SECTION -->
+    <!-- 3.2 MAIN SPLIT GRID -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-      <!-- LEFT 2 COLS: PR + FACILITIES + ROOM ROSTER -->
+      <!-- LEFT 2 COLS -->
       <div class="lg:col-span-2 space-y-6">
 
-        <!-- A. ข่าวประชาสัมพันธ์ทั้งโรงเรียน -->
-        <div class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal relative">
+        <!-- PR NEWS -->
+        <div class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal">
           <div class="flex items-center justify-between border-b-2 border-black pb-3 mb-4">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 bg-brand-red border border-black inline-block"></span>
@@ -185,28 +183,26 @@
               + เพิ่มประกาศ
             </button>
           </div>
-
           <div id="announcementList" class="space-y-3">
-            <!-- Injected by JS -->
+            <p class="text-xs font-bold text-slate-400">กำลังเชื่อมต่อข้อมูลคลาวด์...</p>
           </div>
         </div>
 
-        <!-- B. เช็คสถานะ 6 จุดลานกิจกรรม & ห้องพิเศษ -->
+        <!-- 6 FACILITIES -->
         <div class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal">
           <div class="border-b-2 border-black pb-3 mb-4">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 bg-black border border-black inline-block"></span>
               <h3 class="font-black text-base sm:text-lg uppercase text-black">สถานะห้องเรียนพิเศษ & สนามกีฬา (6 จุด)</h3>
             </div>
-            <p class="text-xs font-bold text-slate-500 mt-0.5">ระบบเช็คความพร้อมพื้นที่ส่วนกลางแบบ Real-time</p>
+            <p class="text-xs font-bold text-slate-500 mt-0.5">เชื่อมต่อคลาวด์ อัปเดตทุกเครื่องพร้อมกันทันที</p>
           </div>
-
           <div id="facilitiesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <!-- 6 Facilities Injected by JS -->
+            <!-- Injected by Cloud listener -->
           </div>
         </div>
 
-        <!-- C. ข้อมูลห้อง ม.5/1 -->
+        <!-- ROOM 5/1 ROSTER -->
         <div id="classroomSection" class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal">
           <div class="flex items-center justify-between flex-wrap gap-2 border-b-2 border-black pb-3 mb-4">
             <div>
@@ -216,9 +212,7 @@
               </div>
               <p class="text-xs font-bold text-slate-500">ครูที่ปรึกษา: คุณครูนพมาศ หลีเจริญ (30 คน)</p>
             </div>
-            <div id="room51Stats" class="flex gap-2 text-xs font-black">
-              <!-- Stats -->
-            </div>
+            <div id="room51Stats" class="flex gap-2 text-xs font-black"></div>
           </div>
 
           <div class="border-2 border-black overflow-hidden max-h-64 overflow-y-auto custom-scroll">
@@ -231,28 +225,24 @@
                   <th class="py-2 px-3 border-b border-black text-right">สถานะ</th>
                 </tr>
               </thead>
-              <tbody id="studentRosterBody" class="divide-y-2 divide-black bg-white font-medium">
-                <!-- Roster Injected by JS -->
-              </tbody>
+              <tbody id="studentRosterBody" class="divide-y-2 divide-black bg-white font-medium"></tbody>
             </table>
           </div>
         </div>
 
       </div>
 
-      <!-- RIGHT 1 COL: SCHOOL-WIDE COMMUNITY POSTS -->
+      <!-- RIGHT 1 COL: POSTS -->
       <div class="space-y-6">
-
         <div class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal flex flex-col space-y-4">
           <div class="border-b-2 border-black pb-3">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 bg-yellow-400 border border-black inline-block"></span>
               <h3 class="font-black text-base uppercase text-black">กระดานนักเรียน (ทั้งโรงเรียน)</h3>
             </div>
-            <p class="text-xs font-bold text-slate-500 mt-0.5">แจ้งของหาย • ขอความช่วยเหลือ • สอบถาม</p>
+            <p class="text-xs font-bold text-slate-500 mt-0.5">Real-time Lost & Found Post Board</p>
           </div>
 
-          <!-- Create Post Box -->
           <div class="bg-brand-surface p-3.5 border-2 border-black space-y-2.5 shadow-brutal-sm">
             <input id="postInputTitle" type="text" placeholder="พิมพ์ข้อความ... (เช่น ใครเห็นกระเป๋าสตางค์สีดำ)" class="w-full text-xs sm:text-sm px-3 py-2 bg-white border-2 border-black font-semibold focus:outline-none focus:bg-brand-lightRed">
             <div class="flex gap-2">
@@ -261,47 +251,68 @@
                 <option value="FOUND">🎁 เจอของ</option>
                 <option value="HELP">🙋 ช่วยเหลือ</option>
               </select>
-              <button onclick="submitPost()" class="flex-1 bg-black hover:bg-brand-red text-white text-xs font-black uppercase py-1.5 px-3 border-2 border-black transition flex items-center justify-center gap-1 shadow-brutal-sm active:translate-x-0.5 active:translate-y-0.5">
+              <button onclick="submitPostCloud()" class="flex-1 bg-black hover:bg-brand-red text-white text-xs font-black uppercase py-1.5 px-3 border-2 border-black transition flex items-center justify-center gap-1 shadow-brutal-sm active:translate-x-0.5 active:translate-y-0.5">
                 <i data-lucide="send" class="w-3 h-3"></i> โพสต์
               </button>
             </div>
           </div>
 
-          <!-- Feed Stream -->
-          <div id="globalFeed" class="space-y-3 max-h-[580px] overflow-y-auto custom-scroll pr-1">
-            <!-- Feed Injected by JS -->
-          </div>
+          <div id="globalFeed" class="space-y-3 max-h-[580px] overflow-y-auto custom-scroll pr-1"></div>
         </div>
-
       </div>
 
     </div>
 
   </main>
 
-  <!-- 4. MODAL: ADD ANNOUNCEMENT (BRUTALIST STYLE) -->
+  <!-- MODAL: ADD ANNOUNCEMENT -->
   <div id="announceModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] hidden items-center justify-center p-4">
     <div class="bg-white border-4 border-black p-6 max-w-md w-full shadow-brutal-lg space-y-4 relative">
       <div class="flex items-center justify-between border-b-2 border-black pb-2">
         <h3 class="font-black text-black text-base uppercase">เพิ่มข่าวสารประชาสัมพันธ์</h3>
         <button onclick="closeAnnounceModal()" class="border-2 border-black p-1 hover:bg-brand-red hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
-      <input id="annTitle" type="text" placeholder="หัวข้อข่าว (เช่น กำหนดตรวจผม)" class="w-full text-xs sm:text-sm px-3 py-2 bg-brand-surface border-2 border-black font-semibold focus:outline-none focus:bg-white">
+      <input id="annTitle" type="text" placeholder="หัวข้อข่าว (เช่น กำหนดการตรวจสุขภาพ)" class="w-full text-xs sm:text-sm px-3 py-2 bg-brand-surface border-2 border-black font-semibold focus:outline-none focus:bg-white">
       <textarea id="annContent" rows="3" placeholder="รายละเอียดประกาศ..." class="w-full text-xs sm:text-sm px-3 py-2 bg-brand-surface border-2 border-black font-semibold focus:outline-none focus:bg-white"></textarea>
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeAnnounceModal()" class="px-3 py-1.5 text-xs font-black uppercase border-2 border-black hover:bg-slate-200">ยกเลิก</button>
-        <button onclick="saveAnnouncement()" class="px-4 py-1.5 text-xs font-black uppercase text-white bg-brand-red hover:bg-black border-2 border-black shadow-brutal-sm">บันทึกและประกาศ</button>
+        <button onclick="saveAnnouncementCloud()" class="px-4 py-1.5 text-xs font-black uppercase text-white bg-brand-red hover:bg-black border-2 border-black shadow-brutal-sm">บันทึกและประกาศ</button>
       </div>
     </div>
   </div>
 
   <footer class="mt-auto py-5 border-t-4 border-black bg-white text-center text-xs font-bold uppercase tracking-wider text-black">
-    SMART SCHOOL HUB © 2026 • ADILAN AND KANTAPAT
+    SMART SCHOOL HUB © 2026 • CLOUD REAL-TIME EDITION
   </footer>
 
-  <!-- SCRIPT LOGIC -->
+  <!-- SCRIPT LOGIC (FIREBASE CLOUD INTEGRATED) -->
   <script>
-    // 30 Students Data (ม.5/1)
+   
+    const firebaseConfig = {
+      apiKey: "AIzaSyAbB3lt210Cj0rd2dKjo86j9kdJzlWjn-8",
+      authDomain: "smart-school-hub-5649b.firebaseapp.com",
+      databaseURL: "https://smart-school-hub-5649b-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "smart-school-hub-5649b",
+      storageBucket: "smart-school-hub-5649b.firebasestorage.app",
+      messagingSenderId: "428221983346",
+      appId: "1:428221983346:web:c2dce7758e25cff51070eb"
+      measurementId: "G-YXJVEJED8T"
+    };
+
+    // ตรวจสอบการเชื่อมต่อ Firebase
+    let db = null;
+    let isCloudReady = false;
+    try {
+      if (firebaseConfig.apiKey !== "AIzaSy_YOUR_API_KEY_HERE") {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        isCloudReady = true;
+      }
+    } catch(e) {
+      console.warn("ยังไม่ได้ใส่ Firebase Key ระบบจะทำงานในโหมด LocalStorage สำรอง", e);
+    }
+
+    // 30 Students Data
     const students51 = [
       { id: "07925", name: "นางสาวณูรอัลภ์ มะยะเอ๊ะ", no: 1, room: "ม.5/1" },
       { id: "07929", name: "นางสาวอาซียัน มาหามะ", no: 2, room: "ม.5/1" },
@@ -335,7 +346,6 @@
       { id: "08603", name: "นางสาวนูรีซา สะอุ", no: 30, room: "ม.5/1" }
     ];
 
-    // 6 Facilities
     const defaultFacilities = [
       { id: 1, name: "สนามฟุตซอลใต้โดม", location: "อาคารโดมอเนกประสงค์", status: "AVAILABLE", note: "เปิดใช้งานปกติ" },
       { id: 2, name: "สนามตะกร้อหลังอาคาร 3", location: "หลังอาคารเรียน 3", status: "AVAILABLE", note: "เปิดใช้งานปกติ" },
@@ -345,41 +355,19 @@
       { id: 6, name: "สนามฮอกกี้", location: "สนามกีฬาฝั่งทิศใต้", status: "BUSY", note: "ชมรมกีฬาซ้อมช่วงเย็น" }
     ];
 
-    // State Variables
     let currentUser = JSON.parse(sessionStorage.getItem('brutal_current_user')) || null;
-    let announcements = JSON.parse(localStorage.getItem('brutal_announcements')) || [
-      {
-        id: 1,
-        title: "แจ้งกำหนดการสอบกลางภาค ประจำภาคเรียนที่ 1",
-        content: "ทางฝ่ายวิชาการขอแจ้งกำหนดการสอบกลางภาคของนักเรียนทุกระดับชั้น ระหว่างวันที่ 20 - 24 กันยายนนี้ ขอให้นักเรียนตรวจสอบตารางสอบรายบุคคล",
-        author: "ฝ่ายวิชาการโรงเรียน",
-        date: "25 ส.ค."
-      },
-      {
-        id: 2,
-        title: "ประกาศมาตรการระเบียบวินัยและเวลาเปิด-ปิดสหกรณ์",
-        content: "สหกรณ์โรงเรียนเปิดให้บริการเวลา 10:00 - 16:00 น. ขอความร่วมมือในการเข้าแถวและรักษาความสะอาดบริเวณโดยรอบอย่างเคร่งครัด",
-        author: "อาจารย์ประวิทย์ เพ็ชรดี (ฝ่ายปกครอง)",
-        date: "24 ส.ค."
-      }
-    ];
-
-    let facilities = JSON.parse(localStorage.getItem('brutal_facilities')) || defaultFacilities;
-    let posts = JSON.parse(localStorage.getItem('brutal_posts')) || [
-      {
-        id: 1,
-        title: "เจอกระเป๋าสตางค์สีดำ ลืมไว้ที่อัฒจันทร์สนามฟุตซอลใต้โดม นำส่งไว้ที่โต๊ะ อ.ประวิทย์ ครับ",
-        category: "FOUND",
-        authorName: "นายกันตพัฒน์ ประทุมสุวรรณ",
-        authorRoom: "ม.5/1",
-        authorId: "07968",
-        status: "OPEN",
-        time: "15 นาทีที่แล้ว"
-      }
-    ];
-    let attendance51 = JSON.parse(localStorage.getItem('brutal_att_51')) || {};
-    let schoolAttendance = localStorage.getItem('brutal_school_att') || "None";
-    let isCoopOpen = JSON.parse(localStorage.getItem('brutal_coop_open') ?? true);
+    let localData = {
+      announcements: [
+        { id: 1, title: "แจ้งกำหนดการสอบกลางภาค ประจำภาคเรียนที่ 1", content: "ทางฝ่ายวิชาการขอแจ้งกำหนดการสอบกลางภาคของนักเรียนทุกระดับชั้น ระหว่างวันที่ 20 - 24 กันยายนนี้", author: "ฝ่ายวิชาการ", date: "25 ส.ค." }
+      ],
+      facilities: defaultFacilities,
+      posts: [
+        { id: 1, title: "เจอกระเป๋าสตางค์สีดำ ลืมไว้ที่สนามฟุตซอลใต้โดม นำส่งไว้ที่โต๊ะ อ.ประวิทย์ ครับ", category: "FOUND", authorName: "นายกันตพัฒน์ ประทุมสุวรรณ", authorRoom: "ม.5/1", authorId: "07968", status: "OPEN", time: "15 นาทีที่แล้ว" }
+      ],
+      attendance51: {},
+      schoolAttendance: "None",
+      isCoopOpen: true
+    };
 
     function init() {
       if (!currentUser) {
@@ -396,11 +384,7 @@
     function handleLogin() {
       const id = document.getElementById('loginId').value.trim();
       const pin = document.getElementById('loginPin').value.trim();
-
-      if (pin !== "00001") {
-        alert("รหัสผ่าน (PIN) ไม่ถูกต้อง! (รหัสทดสอบ: 00001)");
-        return;
-      }
+      if (pin !== "00001") return alert("รหัสผ่านไม่ถูกต้อง! (รหัสทดสอบ: 00001)");
 
       if (id === "T001" || id.includes("ประวิทย์") || id.toLowerCase() === "prawit") {
         currentUser = { id: "T001", name: "อาจารย์ประวิทย์ เพ็ชรดี", role: "TEACHER", room: "ฝ่ายปกครอง" };
@@ -408,11 +392,7 @@
         currentUser = { id: "T002", name: "คุณครูนพมาศ หลีเจริญ", role: "TEACHER", room: "ครูที่ปรึกษา ม.5/1" };
       } else {
         const found = students51.find(s => s.id === id);
-        if (found) {
-          currentUser = { ...found, role: "STUDENT" };
-        } else {
-          currentUser = { id: id || "GUEST", name: `นักเรียนรหัส ${id || 'ทั่วไป'}`, role: "STUDENT", room: "ม.5/1" };
-        }
+        currentUser = found ? { ...found, role: "STUDENT" } : { id: id || "GUEST", name: `นักเรียนรหัส ${id || 'ทั่วไป'}`, role: "STUDENT", room: "ม.5/1" };
       }
 
       sessionStorage.setItem('brutal_current_user', JSON.stringify(currentUser));
@@ -421,7 +401,6 @@
 
     function logout() {
       sessionStorage.removeItem('brutal_current_user');
-      currentUser = null;
       location.reload();
     }
 
@@ -439,51 +418,176 @@
         document.querySelectorAll('.teacher-only').forEach(el => el.classList.add('hidden'));
       }
 
-      renderAnnouncements();
-      renderFacilities();
-      renderFeed();
-      renderClassroom();
-      renderCoopStatus();
-      document.getElementById('schoolAttendanceCount').innerText = schoolAttendance;
+      // ถ้าเชื่อม Firebase สำเร็จ จะเปิด Real-time listener ทันที
+      if (isCloudReady) {
+        listenCloudDatabase();
+      } else {
+        renderAllUI();
+      }
+    }
+
+    // ⚡ REAL-TIME CLOUD LISTENER (อัปเดตอัตโนมัติทุกครั้งที่มีเครื่องอื่นกดแก้)
+    function listenCloudDatabase() {
+      // 1. Listen Facilities (ห้องคอม & สนาม)
+      db.collection("school").doc("facilities").onSnapshot(doc => {
+        if (doc.exists) localData.facilities = doc.data().list || defaultFacilities;
+        else db.collection("school").doc("facilities").set({ list: defaultFacilities });
+        renderFacilities();
+      });
+
+      // 2. Listen Status (สหกรณ์ & ยอดนักเรียน)
+      db.collection("school").doc("status").onSnapshot(doc => {
+        if (doc.exists) {
+          const data = doc.data();
+          localData.isCoopOpen = data.isCoopOpen ?? true;
+          localData.schoolAttendance = data.schoolAttendance || "None";
+        }
+        renderStatusUI();
+      });
+
+      // 3. Listen Announcements
+      db.collection("school").doc("announcements").onSnapshot(doc => {
+        if (doc.exists) localData.announcements = doc.data().list || [];
+        renderAnnouncements();
+      });
+
+      // 4. Listen Posts
+      db.collection("school").doc("posts").onSnapshot(doc => {
+        if (doc.exists) localData.posts = doc.data().list || [];
+        renderFeed();
+      });
+
+      // 5. Listen Attendance 5/1
+      db.collection("school").doc("attendance_51").onSnapshot(doc => {
+        if (doc.exists) localData.attendance51 = doc.data().map || {};
+        renderClassroom();
+      });
+    }
+
+    // --- ACTIONS SYNCED TO CLOUD ---
+    function toggleFacility(id) {
+      if (currentUser.role !== 'TEACHER') return;
+      localData.facilities = localData.facilities.map(f => {
+        if (f.id === id) {
+          const next = f.status === 'AVAILABLE' ? 'BUSY' : 'AVAILABLE';
+          return { ...f, status: next, note: next === 'AVAILABLE' ? 'เปิดใช้งานปกติ (ว่าง)' : 'กำลังใช้งาน / ติดกิจกรรม' };
+        }
+        return f;
+      });
+
+      if (isCloudReady) db.collection("school").doc("facilities").set({ list: localData.facilities });
+      else renderFacilities();
+    }
+
+    function toggleCoopCloud() {
+      if (currentUser.role !== 'TEACHER') return;
+      localData.isCoopOpen = !localData.isCoopOpen;
+      if (isCloudReady) db.collection("school").doc("status").set({ isCoopOpen: localData.isCoopOpen, schoolAttendance: localData.schoolAttendance }, { merge: true });
+      else renderStatusUI();
+    }
+
+    function editSchoolAttendanceCloud() {
+      if (currentUser.role !== 'TEACHER') return;
+      const val = prompt("กรุณาระบุจำนวนนักเรียนที่มาเรียนทั้งหมด:", localData.schoolAttendance);
+      if (val !== null) {
+        localData.schoolAttendance = val.trim() || "None";
+        if (isCloudReady) db.collection("school").doc("status").set({ schoolAttendance: localData.schoolAttendance }, { merge: true });
+        else renderStatusUI();
+      }
+    }
+
+    function saveAnnouncementCloud() {
+      const title = document.getElementById('annTitle').value.trim();
+      const content = document.getElementById('annContent').value.trim();
+      if (!title || !content) return alert("กรุณากรอกข้อมูลให้ครบ");
+
+      localData.announcements.unshift({ id: Date.now(), title, content, author: `${currentUser.name} (${currentUser.room})`, date: "วันนี้" });
+      if (isCloudReady) db.collection("school").doc("announcements").set({ list: localData.announcements });
+      else renderAnnouncements();
+
+      closeAnnounceModal();
+      document.getElementById('annTitle').value = "";
+      document.getElementById('annContent').value = "";
+    }
+
+    function deleteAnnounce(idx) {
+      if (!confirm("ต้องการลบประกาศนี้ใช่หรือไม่?")) return;
+      localData.announcements.splice(idx, 1);
+      if (isCloudReady) db.collection("school").doc("announcements").set({ list: localData.announcements });
+      else renderAnnouncements();
+    }
+
+    function submitPostCloud() {
+      const input = document.getElementById('postInputTitle');
+      const cat = document.getElementById('postInputCategory').value;
+      if (!input.value.trim()) return alert("กรุณากรอกข้อความก่อนโพสต์");
+
+      localData.posts.unshift({
+        id: Date.now(),
+        title: input.value.trim(),
+        category: cat,
+        authorName: currentUser.name,
+        authorRoom: currentUser.room || "ม.5/1",
+        authorId: currentUser.id,
+        status: "OPEN",
+        time: "เมื่อสักครู่"
+      });
+
+      if (isCloudReady) db.collection("school").doc("posts").set({ list: localData.posts });
+      else renderFeed();
+      input.value = "";
+    }
+
+    function togglePostResolve(id) {
+      localData.posts = localData.posts.map(p => p.id === id ? { ...p, status: p.status === 'OPEN' ? 'RESOLVED' : 'OPEN' } : p);
+      if (isCloudReady) db.collection("school").doc("posts").set({ list: localData.posts });
+      else renderFeed();
+    }
+
+    function toggleStudentAtt(id) {
+      if (currentUser.role !== 'TEACHER') return;
+      localData.attendance51[id] = (localData.attendance51[id] || 'PRESENT') === 'PRESENT' ? 'ABSENT' : 'PRESENT';
+      if (isCloudReady) db.collection("school").doc("attendance_51").set({ map: localData.attendance51 });
+      else renderClassroom();
+    }
+
+    // --- UI RENDERERS ---
+    function renderStatusUI() {
+      const textEl = document.getElementById('coopStatusText');
+      textEl.innerText = localData.isCoopOpen ? "เปิด (10:00-16:00)" : "ปิดชั่วคราว";
+      textEl.className = localData.isCoopOpen ? "text-xs sm:text-sm font-black text-black" : "text-xs sm:text-sm font-black text-brand-red";
+      document.getElementById('schoolAttendanceCount').innerText = localData.schoolAttendance;
+    }
+
+    function renderFacilities() {
+      const grid = document.getElementById('facilitiesGrid');
+      grid.innerHTML = "";
+      localData.facilities.forEach(fac => {
+        const isAvail = fac.status === 'AVAILABLE';
+        const card = document.createElement('div');
+        card.className = `p-3.5 border-2 border-black shadow-brutal-sm flex items-center justify-between ${isAvail ? 'bg-white' : 'bg-brand-lightRed/60'}`;
+        card.innerHTML = `
+          <div>
+            <p class="font-black text-black text-xs sm:text-sm">${fac.name}</p>
+            <p class="text-[10px] font-bold text-slate-500">${fac.location}</p>
+            <p class="text-[10px] font-black mt-1 ${isAvail ? 'text-emerald-700' : 'text-brand-red'}">${fac.note}</p>
+          </div>
+          <div class="text-right space-y-1">
+            <span class="px-2 py-0.5 text-xs font-black border-2 border-black inline-block ${isAvail ? 'bg-emerald-400 text-black' : 'bg-brand-red text-white'}">
+              ${isAvail ? 'ว่าง' : 'ไม่ว่าง'}
+            </span>
+            ${currentUser && currentUser.role === 'TEACHER' ? `<button onclick="toggleFacility(${fac.id})" class="block text-[10px] text-black hover:text-brand-red underline font-black">สลับสถานะ</button>` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
       lucide.createIcons();
     }
 
-    // --- COOPERATIVE ---
-    function renderCoopStatus() {
-      const textEl = document.getElementById('coopStatusText');
-      if (isCoopOpen) {
-        textEl.innerText = "เปิด (10:00-16:00)";
-        textEl.className = "text-xs sm:text-sm font-black text-black";
-      } else {
-        textEl.innerText = "ปิดชั่วคราว";
-        textEl.className = "text-xs sm:text-sm font-black text-brand-red";
-      }
-    }
-
-    function toggleCoop() {
-      if (currentUser.role !== 'TEACHER') return;
-      isCoopOpen = !isCoopOpen;
-      localStorage.setItem('brutal_coop_open', JSON.stringify(isCoopOpen));
-      renderCoopStatus();
-    }
-
-    // --- SCHOOL ATTENDANCE ---
-    function editSchoolAttendance() {
-      if (currentUser.role !== 'TEACHER') return;
-      const val = prompt("กรุณาระบุจำนวนนักเรียนที่มาเรียนทั้งหมด (เช่น 1,280 / 1,300 คน):", schoolAttendance);
-      if (val !== null) {
-        schoolAttendance = val.trim() || "None";
-        localStorage.setItem('brutal_school_att', schoolAttendance);
-        document.getElementById('schoolAttendanceCount').innerText = schoolAttendance;
-      }
-    }
-
-    // --- ANNOUNCEMENTS ---
     function renderAnnouncements() {
       const container = document.getElementById('announcementList');
       container.innerHTML = "";
-
-      announcements.forEach((a, index) => {
+      localData.announcements.forEach((a, index) => {
         const item = document.createElement('div');
         item.className = "p-4 bg-brand-surface border-2 border-black shadow-brutal-sm relative";
         item.innerHTML = `
@@ -495,107 +599,20 @@
           <p class="text-xs text-slate-700 font-medium leading-relaxed">${a.content}</p>
           <div class="mt-2 text-[11px] font-bold text-slate-500 flex justify-between items-center border-t border-black/10 pt-2">
             <span>โดย: ${a.author}</span>
-            ${currentUser.role === 'TEACHER' ? `<button onclick="deleteAnnounce(${index})" class="text-brand-red hover:underline text-[11px] font-black">ลบประกาศ</button>` : ''}
+            ${currentUser && currentUser.role === 'TEACHER' ? `<button onclick="deleteAnnounce(${index})" class="text-brand-red hover:underline text-[11px] font-black">ลบประกาศ</button>` : ''}
           </div>
         `;
         container.appendChild(item);
       });
     }
 
-    function openAnnounceModal() {
-      document.getElementById('announceModal').classList.remove('hidden');
-      document.getElementById('announceModal').classList.add('flex');
-    }
-
-    function closeAnnounceModal() {
-      document.getElementById('announceModal').classList.add('hidden');
-      document.getElementById('announceModal').classList.remove('flex');
-    }
-
-    function saveAnnouncement() {
-      const title = document.getElementById('annTitle').value.trim();
-      const content = document.getElementById('annContent').value.trim();
-      if (!title || !content) return alert("กรุณากรอกหัวข้อและเนื้อหาข่าว");
-
-      announcements.unshift({
-        id: Date.now(),
-        title,
-        content,
-        author: `${currentUser.name} (${currentUser.room})`,
-        date: "วันนี้"
-      });
-      localStorage.setItem('brutal_announcements', JSON.stringify(announcements));
-      closeAnnounceModal();
-      document.getElementById('annTitle').value = "";
-      document.getElementById('annContent').value = "";
-      renderAnnouncements();
-    }
-
-    function deleteAnnounce(idx) {
-      if (!confirm("ต้องการลบประกาศนี้ใช่หรือไม่?")) return;
-      announcements.splice(idx, 1);
-      localStorage.setItem('brutal_announcements', JSON.stringify(announcements));
-      renderAnnouncements();
-    }
-
-    // --- 6 FACILITIES ---
-    function renderFacilities() {
-      const grid = document.getElementById('facilitiesGrid');
-      grid.innerHTML = "";
-
-      facilities.forEach(fac => {
-        const isAvail = fac.status === 'AVAILABLE';
-        const card = document.createElement('div');
-        card.className = `p-3.5 border-2 border-black shadow-brutal-sm flex items-center justify-between ${
-          isAvail ? 'bg-white' : 'bg-brand-lightRed/60'
-        }`;
-
-        card.innerHTML = `
-          <div>
-            <p class="font-black text-black text-xs sm:text-sm">${fac.name}</p>
-            <p class="text-[10px] font-bold text-slate-500">${fac.location}</p>
-            <p class="text-[10px] font-black mt-1 ${isAvail ? 'text-emerald-700' : 'text-brand-red'}">${fac.note}</p>
-          </div>
-          <div class="text-right space-y-1">
-            <span class="px-2 py-0.5 text-xs font-black border-2 border-black inline-block ${
-              isAvail ? 'bg-emerald-400 text-black' : 'bg-brand-red text-white'
-            }">
-              ${isAvail ? 'ว่าง' : 'ไม่ว่าง'}
-            </span>
-            ${currentUser.role === 'TEACHER' ? `
-              <button onclick="toggleFacility(${fac.id})" class="block text-[10px] text-black hover:text-brand-red underline font-black">
-                สลับสถานะ
-              </button>
-            ` : ''}
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function toggleFacility(id) {
-      facilities = facilities.map(f => {
-        if (f.id === id) {
-          const next = f.status === 'AVAILABLE' ? 'BUSY' : 'AVAILABLE';
-          const newNote = next === 'AVAILABLE' ? 'เปิดใช้งานปกติ (ว่าง)' : 'กำลังใช้งาน / ติดกิจกรรม';
-          return { ...f, status: next, note: newNote };
-        }
-        return f;
-      });
-      localStorage.setItem('brutal_facilities', JSON.stringify(facilities));
-      renderFacilities();
-    }
-
-    // --- CLASSROOM SECTION ---
     function renderClassroom() {
       const tbody = document.getElementById('studentRosterBody');
       tbody.innerHTML = "";
       let presentCount = 0;
-
       students51.forEach(st => {
-        const isPresent = (attendance51[st.id] || 'PRESENT') === 'PRESENT';
+        const isPresent = (localData.attendance51[st.id] || 'PRESENT') === 'PRESENT';
         if (isPresent) presentCount++;
-
         const tr = document.createElement('tr');
         tr.className = "hover:bg-brand-surface transition";
         tr.innerHTML = `
@@ -603,53 +620,34 @@
           <td class="py-2 px-3 font-mono font-bold text-black">${st.id}</td>
           <td class="py-2 px-3 font-bold text-black">${st.name}</td>
           <td class="py-2 px-3 text-right">
-            ${currentUser.role === 'TEACHER' ? `
-              <button onclick="toggleStudentAtt('${st.id}')" class="px-2 py-0.5 text-xs font-black border border-black ${
-                isPresent ? 'bg-emerald-300 text-black' : 'bg-brand-red text-white'
-              }">
+            ${currentUser && currentUser.role === 'TEACHER' ? `
+              <button onclick="toggleStudentAtt('${st.id}')" class="px-2 py-0.5 text-xs font-black border border-black ${isPresent ? 'bg-emerald-300 text-black' : 'bg-brand-red text-white'}">
                 ${isPresent ? '✓ มา' : '✗ ขาด'}
-              </button>
-            ` : `
-              <span class="text-xs font-black ${isPresent ? 'text-emerald-700' : 'text-brand-red'}">
-                ${isPresent ? 'มาเรียน' : 'ขาด/ลา'}
-              </span>
-            `}
+              </button>` : `
+              <span class="text-xs font-black ${isPresent ? 'text-emerald-700' : 'text-brand-red'}">${isPresent ? 'มาเรียน' : 'ขาด/ลา'}</span>`}
           </td>
         `;
         tbody.appendChild(tr);
       });
-
       document.getElementById('room51Stats').innerHTML = `
         <span class="px-2 py-0.5 border border-black bg-emerald-300 text-black">มา ${presentCount}</span>
         <span class="px-2 py-0.5 border border-black bg-brand-red text-white">ขาด/ลา ${30 - presentCount}</span>
       `;
     }
 
-    function toggleStudentAtt(id) {
-      if (currentUser.role !== 'TEACHER') return;
-      attendance51[id] = (attendance51[id] || 'PRESENT') === 'PRESENT' ? 'ABSENT' : 'PRESENT';
-      localStorage.setItem('brutal_att_51', JSON.stringify(attendance51));
-      renderClassroom();
-    }
-
-    // --- COMMUNITY & POSTS ---
     function renderFeed() {
       const feed = document.getElementById('globalFeed');
       feed.innerHTML = "";
-
       const badges = {
         LOST: { text: "ตามหาของ", style: "bg-brand-red text-white" },
         FOUND: { text: "พบของ", style: "bg-emerald-400 text-black" },
         HELP: { text: "ช่วยเหลือ", style: "bg-yellow-300 text-black" }
       };
 
-      posts.forEach(p => {
+      localData.posts.forEach(p => {
         const isResolved = p.status === 'RESOLVED';
         const card = document.createElement('div');
-        card.className = `p-3 border-2 border-black shadow-brutal-sm transition ${
-          isResolved ? 'bg-slate-100 opacity-65' : 'bg-white'
-        }`;
-
+        card.className = `p-3 border-2 border-black shadow-brutal-sm transition ${isResolved ? 'bg-slate-100 opacity-65' : 'bg-white'}`;
         card.innerHTML = `
           <div class="flex items-center justify-between gap-2 mb-1.5">
             <span class="px-2 py-0.5 text-[9px] font-black border border-black uppercase ${badges[p.category].style}">
@@ -657,20 +655,10 @@
             </span>
             <span class="text-[10px] font-bold text-slate-500">${p.time}</span>
           </div>
-          <p class="text-xs sm:text-sm font-bold ${isResolved ? 'line-through text-slate-400' : 'text-black'} mb-2">
-            ${p.title}
-          </p>
+          <p class="text-xs sm:text-sm font-bold ${isResolved ? 'line-through text-slate-400' : 'text-black'} mb-2">${p.title}</p>
           <div class="flex items-center justify-between text-[11px] pt-1.5 border-t border-black/10">
             <span class="text-slate-500 font-bold">โดย ${p.authorName} (${p.authorRoom})</span>
-            ${
-              (currentUser.id === p.authorId || currentUser.role === 'TEACHER')
-              ? `<button onclick="togglePostResolve(${p.id})" class="text-xs font-black ${
-                  isResolved ? 'text-black underline' : 'text-brand-red underline'
-                }">
-                  ${isResolved ? '↩ เปิดอีกครั้ง' : '✓ ปิดโพสต์ (พบแล้ว)'}
-                </button>`
-              : (isResolved ? '<span class="text-emerald-700 font-black">✓ สิ้นสุด</span>' : '')
-            }
+            ${(currentUser && (currentUser.id === p.authorId || currentUser.role === 'TEACHER')) ? `<button onclick="togglePostResolve(${p.id})" class="text-xs font-black ${isResolved ? 'text-black underline' : 'text-brand-red underline'}">${isResolved ? '↩ เปิดอีกครั้ง' : '✓ ปิดโพสต์'}</button>` : (isResolved ? '<span class="text-emerald-700 font-black">✓ สิ้นสุด</span>' : '')}
           </div>
         `;
         feed.appendChild(card);
@@ -678,35 +666,21 @@
       lucide.createIcons();
     }
 
-    function submitPost() {
-      const input = document.getElementById('postInputTitle');
-      const cat = document.getElementById('postInputCategory').value;
-      if (!input.value.trim()) return alert("กรุณากรอกข้อความก่อนโพสต์");
-
-      const newPost = {
-        id: Date.now(),
-        title: input.value.trim(),
-        category: cat,
-        authorName: currentUser.name,
-        authorRoom: currentUser.room || "โรงเรียน",
-        authorId: currentUser.id,
-        status: "OPEN",
-        time: "เมื่อสักครู่"
-      };
-
-      posts.unshift(newPost);
-      localStorage.setItem('brutal_posts', JSON.stringify(posts));
-      input.value = "";
+    function renderAllUI() {
+      renderStatusUI();
+      renderFacilities();
+      renderAnnouncements();
+      renderClassroom();
       renderFeed();
     }
 
-    function togglePostResolve(id) {
-      posts = posts.map(p => {
-        if (p.id === id) return { ...p, status: p.status === 'OPEN' ? 'RESOLVED' : 'OPEN' };
-        return p;
-      });
-      localStorage.setItem('brutal_posts', JSON.stringify(posts));
-      renderFeed();
+    function openAnnounceModal() {
+      document.getElementById('announceModal').classList.remove('hidden');
+      document.getElementById('announceModal').classList.add('flex');
+    }
+    function closeAnnounceModal() {
+      document.getElementById('announceModal').classList.add('hidden');
+      document.getElementById('announceModal').classList.remove('flex');
     }
 
     document.addEventListener("DOMContentLoaded", init);
