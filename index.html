@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ระบบสารสนเทศโรงเรียน - RSCT School Hub</title>
+  <title>ระบบสารสนเทศโรงเรียน - Smart School Hub</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Prompt -->
@@ -51,27 +51,12 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">รหัสผ่าน (PIN)</label>
-          <input id="loginPin" type="password" placeholder="รหัสทดสอบคือ 00001" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500 focus:bg-white transition">
+          <input id="loginPin" type="password" placeholder="กรอกรหัสผ่าน 5 หลัก" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500 focus:bg-white transition">
         </div>
 
         <button onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md shadow-sky-100 transition">
           เข้าสู่ระบบ
         </button>
-
-        <!-- Presentation Fast Selection Shortcuts -->
-        <div class="pt-4 border-t border-slate-100 space-y-2">
-          <p class="text-[11px] text-center font-medium text-slate-400">⚡ ทางลัดสำหรับนำเสนออาจารย์ (คลิกเพื่อเข้าทันที)</p>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="quickLogin('T001')" class="p-2 text-left rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 transition">
-              <span class="block text-[11px] font-bold text-amber-900">👑 อ.ประวิทย์ เพ็ชรดี</span>
-              <span class="block text-[10px] text-amber-700">สิทธิ์ครู (แก้ไขข้อมูลได้)</span>
-            </button>
-            <button onclick="quickLogin('07925')" class="p-2 text-left rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 transition">
-              <span class="block text-[11px] font-bold text-sky-900">🎒 นร. ณูรอัลภ์ (5/1)</span>
-              <span class="block text-[10px] text-sky-700">สิทธิ์นักเรียน</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -101,11 +86,6 @@
       </div>
     </div>
   </header>
-
-  <!-- TEACHER CONTROL NOTICE BANNER -->
-  <div id="teacherBanner" class="hidden bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs py-2 px-4 text-center font-medium shadow-inner">
-    ✨ ท่านกำลังเข้าสู่ระบบในสิทธิ์ <strong>คุณครู (อาจารย์)</strong>: สามารถคลิกแก้ไขสถานะห้อง, เพิ่ม/ลบข่าวประชาสัมพันธ์ และอัปเดตสถิติได้สดๆ
-  </div>
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
@@ -156,7 +136,7 @@
           <i data-lucide="utensils" class="w-5 h-5"></i>
         </div>
         <div>
-          <p class="text-[11px] text-slate-400 font-medium">โรงอาหาร</p>
+          <p class="text-[11px] text-slate-400 font-medium">โรงอาหารกลาง</p>
           <p class="text-sm font-bold text-emerald-600">เปิดให้บริการปกติ</p>
         </div>
       </div>
@@ -244,7 +224,7 @@
         <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-sm flex flex-col space-y-4">
           <div>
             <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-              <i data-lucide="messages-square" class="text-amber-500 w-5 h-5"></i> กระดานนักเรียน
+              <i data-lucide="messages-square" class="text-amber-500 w-5 h-5"></i> กระดานนักเรียน (ทั้งโรงเรียน)
             </h3>
             <p class="text-xs text-slate-400">พื้นที่แจ้งของหาย สอบถามข้อมูล และขอความช่วยเหลือ</p>
           </div>
@@ -354,9 +334,9 @@
       },
       {
         id: 2,
-        title: "ประกาศมาตรการรักษาความสะอาดและเวลาเปิด-ปิดสหกรณ์",
+        title: "ประกาศมาตรการระเบียบวินัยและเวลาเปิด-ปิดสหกรณ์",
         content: "สหกรณ์โรงเรียนเปิดให้บริการเวลา 10:00 - 16:00 น. ขอความร่วมมือในการเข้าแถวและรักษาความสะอาดบริเวณโดยรอบ",
-        author: "อาจารย์ประวิทย์ เพ็ชรดี",
+        author: "อาจารย์ประวิทย์ เพ็ชรดี (ฝ่ายปกครอง)",
         date: "เมื่อวาน"
       }
     ];
@@ -397,33 +377,26 @@
       const pin = document.getElementById('loginPin').value.trim();
 
       if (pin !== "00001") {
-        alert("รหัสผ่านไม่ถูกต้อง! (กรุณาใช้รหัสทดสอบ: 00001)");
+        alert("รหัสผ่าน (PIN) ไม่ถูกต้อง! กรุณาลองใหม่อีกครั้ง");
         return;
       }
 
-      if (id === "T001" || id.includes("ประวิทย์")) {
-        currentUser = { id: "T001", name: "อาจารย์ประวิทย์ เพ็ชรดี", role: "TEACHER", room: "งานบริหารทั่วไป" };
+      // Check Teacher Login
+      if (id === "T001" || id.includes("ประวิทย์") || id.toLowerCase() === "prawit") {
+        currentUser = { id: "T001", name: "อาจารย์ประวิทย์ เพ็ชรดี", role: "TEACHER", room: "ฝ่ายปกครอง" };
+      } else if (id === "T002" || id.includes("นพมาศ")) {
+        currentUser = { id: "T002", name: "คุณครูนพมาศ หลีเจริญ", role: "TEACHER", room: "ครูที่ปรึกษา ม.5/1" };
       } else {
+        // Check Student Login
         const found = students51.find(s => s.id === id);
         if (found) {
           currentUser = { ...found, role: "STUDENT" };
         } else {
-          // Default guest student
+          // General Student
           currentUser = { id: id || "GUEST", name: `นักเรียนรหัส ${id || 'ทั่วไป'}`, role: "STUDENT", room: "ม.5/1" };
         }
       }
 
-      sessionStorage.setItem('smart_current_user', JSON.stringify(currentUser));
-      init();
-    }
-
-    function quickLogin(type) {
-      if (type === 'T001') {
-        currentUser = { id: "T001", name: "อาจารย์ประวิทย์ เพ็ชรดี", role: "TEACHER", room: "งานบริหารทั่วไป" };
-      } else {
-        const s = students51[0];
-        currentUser = { ...s, role: "STUDENT" };
-      }
       sessionStorage.setItem('smart_current_user', JSON.stringify(currentUser));
       init();
     }
@@ -438,17 +411,14 @@
       // User Profile Bar
       document.getElementById('userNameDisplay').innerText = currentUser.name;
       const roleBadge = document.getElementById('userRoleBadge');
-      const teacherBanner = document.getElementById('teacherBanner');
 
       if (currentUser.role === 'TEACHER') {
-        roleBadge.innerText = "👑 อาจารย์ / ผู้ดูแลระบบ";
+        roleBadge.innerText = `👑 อาจารย์ (${currentUser.room})`;
         roleBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800";
-        teacherBanner.classList.remove('hidden');
         document.querySelectorAll('.teacher-only').forEach(el => el.classList.remove('hidden'));
       } else {
         roleBadge.innerText = `🎒 นักเรียน (${currentUser.room})`;
         roleBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700";
-        teacherBanner.classList.add('hidden');
         document.querySelectorAll('.teacher-only').forEach(el => el.classList.add('hidden'));
       }
 
@@ -534,7 +504,7 @@
         id: Date.now(),
         title,
         content,
-        author: currentUser.name,
+        author: `${currentUser.name} (${currentUser.room})`,
         date: "เมื่อสักครู่"
       });
       localStorage.setItem('smart_announcements', JSON.stringify(announcements));
