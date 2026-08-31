@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Firebase SDK (Compat Version สำหรับ Single HTML File) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -63,20 +63,20 @@
           <i data-lucide="school" class="w-7 h-7 text-brand-red"></i>
         </div>
         <h2 class="text-2xl font-black uppercase tracking-tight text-black">เข้าสู่ระบบโรงเรียน</h2>
-        <p class="text-xs font-semibold text-slate-500">RSCT School Portal • สวัสดีจ้า </p>
+        <p class="text-xs font-semibold text-slate-500">RSCT School Portal • Real-time Cloud Sync</p>
       </div>
 
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-black uppercase text-black mb-1.5">รหัสประจำตัว (นักเรียน / อาจารย์)</label>
-          <input id="loginId" type="text" placeholder="เช่น 07925 หรือ T001" class="w-full px-3.5 py-2.5 bg-white border-2 border-black text-sm font-semibold focus:outline-none focus:bg-brand-lightRed transition">
+          <input id="loginId" type="text" placeholder="เช่น 07974 หรือ T001" class="w-full px-3.5 py-2.5 bg-white border-2 border-black text-sm font-semibold focus:outline-none focus:bg-brand-lightRed transition">
         </div>
         <div>
           <label class="block text-xs font-black uppercase text-black mb-1.5">รหัสผ่าน (PIN)</label>
           <input id="loginPin" type="password" placeholder="กรอกรหัส 5 หลัก (00001)" class="w-full px-3.5 py-2.5 bg-white border-2 border-black text-sm font-semibold focus:outline-none focus:bg-brand-lightRed transition">
         </div>
 
-        <button onclick="handleLogin()" class="w-full py-3 bg-brand-red hover:bg-black text-white border-2 border-black font-black uppercase tracking-wide text-sm shadow-brutal hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-2">
+        <button type="button" onclick="handleLogin()" class="w-full py-3 bg-brand-red hover:bg-black text-white border-2 border-black font-black uppercase tracking-wide text-sm shadow-brutal hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-2 cursor-pointer">
           <span>เข้าสู่ระบบ</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
@@ -93,19 +93,18 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="font-black text-lg sm:text-xl uppercase tracking-tighter text-black">RSCT SCHOOL</span>
-          <span class="hidden md:inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-black bg-emerald-400 text-black uppercase border border-black">
+          <span id="cloudStatusBadge" class="hidden md:inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-black bg-emerald-400 text-black uppercase border border-black">
             <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span> LIVE CLOUD
           </span>
         </div>
       </div>
 
-      <!-- Current User Badge -->
       <div class="flex items-center gap-3">
         <div class="text-right">
           <p id="userNameDisplay" class="text-xs sm:text-sm font-black text-black">กำลังโหลด...</p>
           <span id="userRoleBadge" class="text-[10px] font-black px-2 py-0.5 bg-white text-black border border-black inline-block">นักเรียน</span>
         </div>
-        <button onclick="logout()" title="ออกจากระบบ" class="p-2 bg-white hover:bg-brand-red hover:text-white border-2 border-black text-black shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+        <button onclick="logout()" title="ออกจากระบบ" class="p-2 bg-white hover:bg-brand-red hover:text-white border-2 border-black text-black shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer">
           <i data-lucide="log-out" class="w-4 h-4"></i>
         </button>
       </div>
@@ -139,7 +138,7 @@
             <p id="coopStatusText" class="text-xs sm:text-sm font-black text-black">เปิด (10:00-16:00)</p>
           </div>
         </div>
-        <button id="btnToggleCoop" onclick="toggleCoopCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition">สลับ</button>
+        <button id="btnToggleCoop" onclick="toggleCoopCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition cursor-pointer">สลับ</button>
       </div>
 
       <div class="bg-white border-2 border-black p-4 shadow-brutal flex items-center justify-between">
@@ -152,7 +151,7 @@
             <p id="schoolAttendanceCount" class="text-xs sm:text-sm font-black text-brand-red">None</p>
           </div>
         </div>
-        <button onclick="editSchoolAttendanceCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition">แก้ไข</button>
+        <button onclick="editSchoolAttendanceCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition cursor-pointer">แก้ไข</button>
       </div>
 
       <div class="bg-white border-2 border-black p-4 shadow-brutal flex items-center gap-3">
@@ -179,13 +178,11 @@
               <span class="w-3 h-3 bg-brand-red border border-black inline-block"></span>
               <h3 class="font-black text-base sm:text-lg uppercase text-black">ข่าวสารประชาสัมพันธ์โรงเรียน</h3>
             </div>
-            <button onclick="openAnnounceModal()" class="hidden teacher-only px-3 py-1 bg-brand-red hover:bg-black text-white border-2 border-black text-xs font-black uppercase shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all">
+            <button onclick="openAnnounceModal()" class="hidden teacher-only px-3 py-1 bg-brand-red hover:bg-black text-white border-2 border-black text-xs font-black uppercase shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer">
               + เพิ่มประกาศ
             </button>
           </div>
-          <div id="announcementList" class="space-y-3">
-            <p class="text-xs font-bold text-slate-400">กำลังเชื่อมต่อข้อมูลคลาวด์...</p>
-          </div>
+          <div id="announcementList" class="space-y-3"></div>
         </div>
 
         <!-- 6 FACILITIES -->
@@ -195,7 +192,7 @@
               <span class="w-3 h-3 bg-black border border-black inline-block"></span>
               <h3 class="font-black text-base sm:text-lg uppercase text-black">สถานะห้องเรียนพิเศษ & สนามกีฬา (6 จุด)</h3>
             </div>
-            <p class="text-xs font-bold text-slate-500 mt-0.5">none</p>
+            <p class="text-xs font-bold text-slate-500 mt-0.5">เชื่อมต่อคลาวด์ อัปเดตทุกเครื่องพร้อมกันทันที</p>
           </div>
           <div id="facilitiesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
         </div>
@@ -249,7 +246,7 @@
                 <option value="FOUND">🎁 เจอของ</option>
                 <option value="HELP">🙋 ช่วยเหลือ</option>
               </select>
-              <button onclick="submitPostCloud()" class="flex-1 bg-black hover:bg-brand-red text-white text-xs font-black uppercase py-1.5 px-3 border-2 border-black transition flex items-center justify-center gap-1 shadow-brutal-sm active:translate-x-0.5 active:translate-y-0.5">
+              <button onclick="submitPostCloud()" class="flex-1 bg-black hover:bg-brand-red text-white text-xs font-black uppercase py-1.5 px-3 border-2 border-black transition flex items-center justify-center gap-1 shadow-brutal-sm active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
                 <i data-lucide="send" class="w-3 h-3"></i> โพสต์
               </button>
             </div>
@@ -268,13 +265,13 @@
     <div class="bg-white border-4 border-black p-6 max-w-md w-full shadow-brutal-lg space-y-4 relative">
       <div class="flex items-center justify-between border-b-2 border-black pb-2">
         <h3 class="font-black text-black text-base uppercase">เพิ่มข่าวสารประชาสัมพันธ์</h3>
-        <button onclick="closeAnnounceModal()" class="border-2 border-black p-1 hover:bg-brand-red hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="closeAnnounceModal()" class="border-2 border-black p-1 hover:bg-brand-red hover:text-white cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
       <input id="annTitle" type="text" placeholder="หัวข้อข่าว (เช่น กำหนดการตรวจสุขภาพ)" class="w-full text-xs sm:text-sm px-3 py-2 bg-brand-surface border-2 border-black font-semibold focus:outline-none focus:bg-white">
       <textarea id="annContent" rows="3" placeholder="รายละเอียดประกาศ..." class="w-full text-xs sm:text-sm px-3 py-2 bg-brand-surface border-2 border-black font-semibold focus:outline-none focus:bg-white"></textarea>
       <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeAnnounceModal()" class="px-3 py-1.5 text-xs font-black uppercase border-2 border-black hover:bg-slate-200">ยกเลิก</button>
-        <button onclick="saveAnnouncementCloud()" class="px-4 py-1.5 text-xs font-black uppercase text-white bg-brand-red hover:bg-black border-2 border-black shadow-brutal-sm">บันทึกและประกาศ</button>
+        <button onclick="closeAnnounceModal()" class="px-3 py-1.5 text-xs font-black uppercase border-2 border-black hover:bg-slate-200 cursor-pointer">ยกเลิก</button>
+        <button onclick="saveAnnouncementCloud()" class="px-4 py-1.5 text-xs font-black uppercase text-white bg-brand-red hover:bg-black border-2 border-black shadow-brutal-sm cursor-pointer">บันทึกและประกาศ</button>
       </div>
     </div>
   </div>
@@ -283,9 +280,401 @@
     RSCT SCHOOL HUB © 2026 • CLOUD REAL-TIME EDITION
   </footer>
 
-  <!-- SCRIPT LOGIC (FIREBASE CLOUD INTEGRATED) -->
+  <!-- SCRIPT LOGIC -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAbB3lt210Cj0rd2dKjo86j9kdJzlWjn-8",
       authDomain: "smart-school-hub-5649b.firebaseapp.com",
-      databaseURL: "https://smart-school-hub-5649b-default-rtdb.asia-southea
+      databaseURL: "https://smart-school-hub-5649b-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "smart-school-hub-5649b",
+      storageBucket: "smart-school-hub-5649b.firebasestorage.app",
+      messagingSenderId: "428221983346",
+      appId: "1:428221983346:web:c2dce7758e25cff51070eb",
+      measurementId: "G-YXJVEJED8T"
+    };
+
+    let db = null;
+    let isCloudReady = false;
+    try {
+      if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "AIzaSy_YOUR_API_KEY_HERE") {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        isCloudReady = true;
+      }
+    } catch(e) {
+      console.warn("Firebase Init Error:", e);
+    }
+
+    const students51 = [
+      { id: "07925", name: "นางสาวณูรอัลภ์ มะยะเอ๊ะ", no: 1, room: "ม.5/1" },
+      { id: "07929", name: "นางสาวอาซียัน มาหามะ", no: 2, room: "ม.5/1" },
+      { id: "07955", name: "นางสาวฟิรดาว เทือกเถาว์", no: 3, room: "ม.5/1" },
+      { id: "07959", name: "นางสาวจารุวรรณ แสงสุวรรณ์", no: 4, room: "ม.5/1" },
+      { id: "07960", name: "นางสาวชัชฎาภรณ์ แก้วเมฆ", no: 5, room: "ม.5/1" },
+      { id: "07968", name: "นายกันตพัฒน์ ประทุมสุวรรณ", no: 6, room: "ม.5/1" },
+      { id: "07969", name: "นายธีรภัทร์ ทองเกตุ", no: 7, room: "ม.5/1" },
+      { id: "07970", name: "นายศุทธสิน กุสะวิโร", no: 8, room: "ม.5/1" },
+      { id: "07971", name: "นายสมพงค์ สามเมือง", no: 9, room: "ม.5/1" },
+      { id: "07972", name: "นายนัสมี สะมะแอ", no: 10, room: "ม.5/1" },
+      { id: "07973", name: "นายอิลฮัม เลาะวิง", no: 11, room: "ม.5/1" },
+      { id: "07974", name: "นายอดิลัน สาเระ", no: 12, room: "ม.5/1" },
+      { id: "07975", name: "นางสาวซีตีมารียัม อามีนา", no: 13, room: "ม.5/1" },
+      { id: "07977", name: "นางสาวนูรซูลฟา แวบือซา", no: 14, room: "ม.5/1" },
+      { id: "07978", name: "นางสาวนูรฟา แยมรอแย", no: 15, room: "ม.5/1" },
+      { id: "07980", name: "นางสาวมูเทียร่า วาแม", no: 16, room: "ม.5/1" },
+      { id: "07981", name: "นางสาวสุฮัยลา ลอนา", no: 17, room: "ม.5/1" },
+      { id: "07986", name: "นางสาวณิชาดา รสกลิ่น", no: 18, room: "ม.5/1" },
+      { id: "07988", name: "นางสาวธิดารัตน์ ศรีก่อเกื้อ", no: 19, room: "ม.5/1" },
+      { id: "07991", name: "นางสาวปัณณภัทร ผุสิง", no: 20, room: "ม.5/1" },
+      { id: "07994", name: "นางสาวสุภาสินี หลานวงค์", no: 21, room: "ม.5/1" },
+      { id: "08528", name: "นายอิรฟัน บือซา", no: 22, room: "ม.5/1" },
+      { id: "08530", name: "นายอาลีฟ ปากอ", no: 23, room: "ม.5/1" },
+      { id: "08531", name: "นางสาวนูร์ซีฮา อาบูวะ", no: 24, room: "ม.5/1" },
+      { id: "08532", name: "นางสาวรูสรา โต๊ะแว๊ะ", no: 25, room: "ม.5/1" },
+      { id: "08533", name: "นางสาวอัลฮีดายะห์ สาและ", no: 26, room: "ม.5/1" },
+      { id: "08585", name: "นายซะห์รูลอามาล มะดารี", no: 27, room: "ม.5/1" },
+      { id: "08593", name: "นางสาวซูนิตา เจะหะ", no: 28, room: "ม.5/1" },
+      { id: "08602", name: "นายซัมซน ณ รือเสาะ", no: 29, room: "ม.5/1" },
+      { id: "08603", name: "นางสาวนูรีซา สะอุ", no: 30, room: "ม.5/1" }
+    ];
+
+    const defaultFacilities = [
+      { id: 1, name: "สนามฟุตซอลใต้โดม", location: "อาคารโดมอเนกประสงค์", status: "AVAILABLE", note: "เปิดใช้งานปกติ" },
+      { id: 2, name: "สนามตะกร้อหลังอาคาร 3", location: "หลังอาคารเรียน 3", status: "AVAILABLE", note: "เปิดใช้งานปกติ" },
+      { id: 3, name: "ห้องคอมพิวเตอร์ 1", location: "อาคาร 2 ชั้น 2", status: "BUSY", note: "ม.4/3 กำลังเรียนวิชาเทคโนโลยี" },
+      { id: 4, name: "ห้องคอมพิวเตอร์ 2", location: "อาคาร 2 ชั้น 2", status: "AVAILABLE", note: "ว่าง คาบ 5-6" },
+      { id: 5, name: "สนามวอลเลย์บนโรงอาหาร", location: "ชั้นลอยโรงอาหารกลาง", status: "AVAILABLE", note: "เปิดใช้งานปกติ" },
+      { id: 6, name: "สนามฮอกกี้", location: "สนามกีฬาฝั่งทิศใต้", status: "BUSY", note: "ชมรมกีฬาซ้อมช่วงเย็น" }
+    ];
+
+    let currentUser = JSON.parse(sessionStorage.getItem('brutal_current_user')) || null;
+    let localData = {
+      announcements: [
+        { id: 1, title: "แจ้งกำหนดการสอบกลางภาค ประจำภาคเรียนที่ 1", content: "ทางฝ่ายวิชาการขอแจ้งกำหนดการสอบกลางภาคของนักเรียนทุกระดับชั้น ระหว่างวันที่ 20 - 24 กันยายนนี้", author: "ฝ่ายวิชาการ", date: "25 ส.ค." },
+        { id: 2, title: "ประกาศระเบียบการใช้บริการสหกรณ์โรงเรียน", content: "สหกรณ์โรงเรียนเปิดให้บริการเวลา 10:00 - 16:00 น. ขอความร่วมมือในการเข้าแถวและรักษาความสะอาด", author: "อาจารย์ประวิทย์ เพ็ชรดี (ฝ่ายปกครอง)", date: "24 ส.ค." }
+      ],
+      facilities: defaultFacilities,
+      posts: [
+        { id: 1, title: "เจอกระเป๋าสตางค์สีดำ ลืมไว้ที่สนามฟุตซอลใต้โดม นำส่งไว้ที่โต๊ะ อ.ประวิทย์ ครับ", category: "FOUND", authorName: "นายกันตพัฒน์ ประทุมสุวรรณ", authorRoom: "ม.5/1", authorId: "07968", status: "OPEN", time: "15 นาทีที่แล้ว" }
+      ],
+      attendance51: {},
+      schoolAttendance: "None",
+      isCoopOpen: true
+    };
+
+    function init() {
+      // เรนเดอร์ข้อมูลขึ้นหน้าจอก่อนทันที ไม่ต้องรอคลาวด์
+      renderAllUI();
+
+      if (!currentUser) {
+        document.getElementById('loginModal').style.display = 'flex';
+      } else {
+        document.getElementById('loginModal').style.display = 'none';
+        setupDashboard();
+      }
+      lucide.createIcons();
+    }
+
+    function handleLogin() {
+      const id = document.getElementById('loginId').value.trim();
+      const pin = document.getElementById('loginPin').value.trim();
+
+      if (pin !== "00001") {
+        alert("รหัสผ่านไม่ถูกต้อง! (รหัสทดสอบ: 00001)");
+        return;
+      }
+
+      if (id === "T001" || id.includes("ประวิทย์") || id.toLowerCase() === "prawit") {
+        currentUser = { id: "T001", name: "อาจารย์ประวิทย์ เพ็ชรดี", role: "TEACHER", room: "ฝ่ายปกครอง" };
+      } else if (id === "T002" || id.includes("นพมาศ")) {
+        currentUser = { id: "T002", name: "คุณครูนพมาศ หลีเจริญ", role: "TEACHER", room: "ครูที่ปรึกษา ม.5/1" };
+      } else {
+        const found = students51.find(s => s.id === id);
+        currentUser = found ? { ...found, role: "STUDENT" } : { id: id || "07974", name: `นักเรียนรหัส ${id || '07974'}`, role: "STUDENT", room: "ม.5/1" };
+      }
+
+      sessionStorage.setItem('brutal_current_user', JSON.stringify(currentUser));
+      document.getElementById('loginModal').style.display = 'none';
+      setupDashboard();
+    }
+
+    function logout() {
+      sessionStorage.removeItem('brutal_current_user');
+      currentUser = null;
+      location.reload();
+    }
+
+    function setupDashboard() {
+      document.getElementById('userNameDisplay').innerText = currentUser.name;
+      const roleBadge = document.getElementById('userRoleBadge');
+
+      if (currentUser.role === 'TEACHER') {
+        roleBadge.innerText = `👑 อาจารย์ (${currentUser.room})`;
+        roleBadge.className = "text-[10px] font-black px-2 py-0.5 bg-brand-red text-white border border-black inline-block";
+        document.querySelectorAll('.teacher-only').forEach(el => el.classList.remove('hidden'));
+      } else {
+        roleBadge.innerText = `🎒 นักเรียน (${currentUser.room})`;
+        roleBadge.className = "text-[10px] font-black px-2 py-0.5 bg-black text-white border border-black inline-block";
+        document.querySelectorAll('.teacher-only').forEach(el => el.classList.add('hidden'));
+      }
+
+      renderAllUI();
+      if (isCloudReady) {
+        listenCloudDatabase();
+      }
+    }
+
+    function listenCloudDatabase() {
+      try {
+        db.collection("school").doc("facilities").onSnapshot(doc => {
+          if (doc.exists) localData.facilities = doc.data().list || defaultFacilities;
+          else db.collection("school").doc("facilities").set({ list: defaultFacilities });
+          renderFacilities();
+        }, err => console.warn(err));
+
+        db.collection("school").doc("status").onSnapshot(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            localData.isCoopOpen = data.isCoopOpen ?? true;
+            localData.schoolAttendance = data.schoolAttendance || "None";
+          }
+          renderStatusUI();
+        }, err => console.warn(err));
+
+        db.collection("school").doc("announcements").onSnapshot(doc => {
+          if (doc.exists) localData.announcements = doc.data().list || [];
+          renderAnnouncements();
+        }, err => console.warn(err));
+
+        db.collection("school").doc("posts").onSnapshot(doc => {
+          if (doc.exists) localData.posts = doc.data().list || [];
+          renderFeed();
+        }, err => console.warn(err));
+
+        db.collection("school").doc("attendance_51").onSnapshot(doc => {
+          if (doc.exists) localData.attendance51 = doc.data().map || {};
+          renderClassroom();
+        }, err => console.warn(err));
+      } catch(e) {
+        console.warn("Cloud Listener error:", e);
+      }
+    }
+
+    function toggleFacility(id) {
+      if (currentUser.role !== 'TEACHER') return;
+      localData.facilities = localData.facilities.map(f => {
+        if (f.id === id) {
+          const next = f.status === 'AVAILABLE' ? 'BUSY' : 'AVAILABLE';
+          return { ...f, status: next, note: next === 'AVAILABLE' ? 'เปิดใช้งานปกติ (ว่าง)' : 'กำลังใช้งาน / ติดกิจกรรม' };
+        }
+        return f;
+      });
+      renderFacilities();
+      if (isCloudReady) db.collection("school").doc("facilities").set({ list: localData.facilities });
+    }
+
+    function toggleCoopCloud() {
+      if (currentUser.role !== 'TEACHER') return;
+      localData.isCoopOpen = !localData.isCoopOpen;
+      renderStatusUI();
+      if (isCloudReady) db.collection("school").doc("status").set({ isCoopOpen: localData.isCoopOpen, schoolAttendance: localData.schoolAttendance }, { merge: true });
+    }
+
+    function editSchoolAttendanceCloud() {
+      if (currentUser.role !== 'TEACHER') return;
+      const val = prompt("ระบุจำนวนนักเรียนที่มาเรียนทั้งหมด:", localData.schoolAttendance);
+      if (val !== null) {
+        localData.schoolAttendance = val.trim() || "None";
+        renderStatusUI();
+        if (isCloudReady) db.collection("school").doc("status").set({ schoolAttendance: localData.schoolAttendance }, { merge: true });
+      }
+    }
+
+    function saveAnnouncementCloud() {
+      const title = document.getElementById('annTitle').value.trim();
+      const content = document.getElementById('annContent').value.trim();
+      if (!title || !content) return alert("กรุณากรอกข้อมูลให้ครบ");
+
+      localData.announcements.unshift({ id: Date.now(), title, content, author: `${currentUser.name} (${currentUser.room})`, date: "วันนี้" });
+      renderAnnouncements();
+      if (isCloudReady) db.collection("school").doc("announcements").set({ list: localData.announcements });
+
+      closeAnnounceModal();
+      document.getElementById('annTitle').value = "";
+      document.getElementById('annContent').value = "";
+    }
+
+    function deleteAnnounce(idx) {
+      if (!confirm("ต้องการลบประกาศนี้ใช่หรือไม่?")) return;
+      localData.announcements.splice(idx, 1);
+      renderAnnouncements();
+      if (isCloudReady) db.collection("school").doc("announcements").set({ list: localData.announcements });
+    }
+
+    function submitPostCloud() {
+      const input = document.getElementById('postInputTitle');
+      const cat = document.getElementById('postInputCategory').value;
+      if (!input.value.trim()) return alert("กรุณากรอกข้อความก่อนโพสต์");
+
+      localData.posts.unshift({
+        id: Date.now(),
+        title: input.value.trim(),
+        category: cat,
+        authorName: currentUser.name,
+        authorRoom: currentUser.room || "ม.5/1",
+        authorId: currentUser.id,
+        status: "OPEN",
+        time: "เมื่อสักครู่"
+      });
+
+      renderFeed();
+      if (isCloudReady) db.collection("school").doc("posts").set({ list: localData.posts });
+      input.value = "";
+    }
+
+    function togglePostResolve(id) {
+      localData.posts = localData.posts.map(p => p.id === id ? { ...p, status: p.status === 'OPEN' ? 'RESOLVED' : 'OPEN' } : p);
+      renderFeed();
+      if (isCloudReady) db.collection("school").doc("posts").set({ list: localData.posts });
+    }
+
+    function toggleStudentAtt(id) {
+      if (currentUser.role !== 'TEACHER') return;
+      localData.attendance51[id] = (localData.attendance51[id] || 'PRESENT') === 'PRESENT' ? 'ABSENT' : 'PRESENT';
+      renderClassroom();
+      if (isCloudReady) db.collection("school").doc("attendance_51").set({ map: localData.attendance51 });
+    }
+
+    function renderStatusUI() {
+      const textEl = document.getElementById('coopStatusText');
+      textEl.innerText = localData.isCoopOpen ? "เปิด (10:00-16:00)" : "ปิดชั่วคราว";
+      textEl.className = localData.isCoopOpen ? "text-xs sm:text-sm font-black text-black" : "text-xs sm:text-sm font-black text-brand-red";
+      document.getElementById('schoolAttendanceCount').innerText = localData.schoolAttendance;
+    }
+
+    function renderFacilities() {
+      const grid = document.getElementById('facilitiesGrid');
+      grid.innerHTML = "";
+      localData.facilities.forEach(fac => {
+        const isAvail = fac.status === 'AVAILABLE';
+        const card = document.createElement('div');
+        card.className = `p-3.5 border-2 border-black shadow-brutal-sm flex items-center justify-between ${isAvail ? 'bg-white' : 'bg-brand-lightRed/60'}`;
+        card.innerHTML = `
+          <div>
+            <p class="font-black text-black text-xs sm:text-sm">${fac.name}</p>
+            <p class="text-[10px] font-bold text-slate-500">${fac.location}</p>
+            <p class="text-[10px] font-black mt-1 ${isAvail ? 'text-emerald-700' : 'text-brand-red'}">${fac.note}</p>
+          </div>
+          <div class="text-right space-y-1">
+            <span class="px-2 py-0.5 text-xs font-black border-2 border-black inline-block ${isAvail ? 'bg-emerald-400 text-black' : 'bg-brand-red text-white'}">
+              ${isAvail ? 'ว่าง' : 'ไม่ว่าง'}
+            </span>
+            ${currentUser && currentUser.role === 'TEACHER' ? `<button onclick="toggleFacility(${fac.id})" class="block text-[10px] text-black hover:text-brand-red underline font-black cursor-pointer">สลับสถานะ</button>` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function renderAnnouncements() {
+      const container = document.getElementById('announcementList');
+      container.innerHTML = "";
+      localData.announcements.forEach((a, index) => {
+        const item = document.createElement('div');
+        item.className = "p-4 bg-brand-surface border-2 border-black shadow-brutal-sm relative";
+        item.innerHTML = `
+          <div class="flex items-center justify-between mb-1">
+            <span class="px-2 py-0.5 text-[9px] font-black bg-black text-white uppercase border border-black">NEWS RELEASE</span>
+            <span class="text-[11px] font-bold text-slate-500">${a.date}</span>
+          </div>
+          <h4 class="font-black text-black text-sm mb-1">${a.title}</h4>
+          <p class="text-xs text-slate-700 font-medium leading-relaxed">${a.content}</p>
+          <div class="mt-2 text-[11px] font-bold text-slate-500 flex justify-between items-center border-t border-black/10 pt-2">
+            <span>โดย: ${a.author}</span>
+            ${currentUser && currentUser.role === 'TEACHER' ? `<button onclick="deleteAnnounce(${index})" class="text-brand-red hover:underline text-[11px] font-black cursor-pointer">ลบประกาศ</button>` : ''}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function renderClassroom() {
+      const tbody = document.getElementById('studentRosterBody');
+      tbody.innerHTML = "";
+      let presentCount = 0;
+      students51.forEach(st => {
+        const isPresent = (localData.attendance51[st.id] || 'PRESENT') === 'PRESENT';
+        if (isPresent) presentCount++;
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-brand-surface transition";
+        tr.innerHTML = `
+          <td class="py-2 px-3 text-slate-500 font-bold">${st.no}</td>
+          <td class="py-2 px-3 font-mono font-bold text-black">${st.id}</td>
+          <td class="py-2 px-3 font-bold text-black">${st.name}</td>
+          <td class="py-2 px-3 text-right">
+            ${currentUser && currentUser.role === 'TEACHER' ? `
+              <button onclick="toggleStudentAtt('${st.id}')" class="px-2 py-0.5 text-xs font-black border border-black cursor-pointer ${isPresent ? 'bg-emerald-300 text-black' : 'bg-brand-red text-white'}">
+                ${isPresent ? '✓ มา' : '✗ ขาด'}
+              </button>` : `
+              <span class="text-xs font-black ${isPresent ? 'text-emerald-700' : 'text-brand-red'}">${isPresent ? 'มาเรียน' : 'ขาด/ลา'}</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('room51Stats').innerHTML = `
+        <span class="px-2 py-0.5 border border-black bg-emerald-300 text-black">มา ${presentCount}</span>
+        <span class="px-2 py-0.5 border border-black bg-brand-red text-white">ขาด/ลา ${30 - presentCount}</span>
+      `;
+    }
+
+    function renderFeed() {
+      const feed = document.getElementById('globalFeed');
+      feed.innerHTML = "";
+      const badges = {
+        LOST: { text: "ตามหาของ", style: "bg-brand-red text-white" },
+        FOUND: { text: "พบของ", style: "bg-emerald-400 text-black" },
+        HELP: { text: "ช่วยเหลือ", style: "bg-yellow-300 text-black" }
+      };
+
+      localData.posts.forEach(p => {
+        const isResolved = p.status === 'RESOLVED';
+        const card = document.createElement('div');
+        card.className = `p-3 border-2 border-black shadow-brutal-sm transition ${isResolved ? 'bg-slate-100 opacity-65' : 'bg-white'}`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <span class="px-2 py-0.5 text-[9px] font-black border border-black uppercase ${badges[p.category].style}">
+              ${badges[p.category].text}
+            </span>
+            <span class="text-[10px] font-bold text-slate-500">${p.time}</span>
+          </div>
+          <p class="text-xs sm:text-sm font-bold ${isResolved ? 'line-through text-slate-400' : 'text-black'} mb-2">${p.title}</p>
+          <div class="flex items-center justify-between text-[11px] pt-1.5 border-t border-black/10">
+            <span class="text-slate-500 font-bold">โดย ${p.authorName} (${p.authorRoom})</span>
+            ${(currentUser && (currentUser.id === p.authorId || currentUser.role === 'TEACHER')) ? `<button onclick="togglePostResolve(${p.id})" class="text-xs font-black cursor-pointer ${isResolved ? 'text-black underline' : 'text-brand-red underline'}">${isResolved ? '↩ เปิดอีกครั้ง' : '✓ ปิดโพสต์'}</button>` : (isResolved ? '<span class="text-emerald-700 font-black">✓ สิ้นสุด</span>' : '')}
+          </div>
+        `;
+        feed.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function renderAllUI() {
+      renderStatusUI();
+      renderFacilities();
+      renderAnnouncements();
+      renderClassroom();
+      renderFeed();
+    }
+
+    function openAnnounceModal() {
+      document.getElementById('announceModal').style.display = 'flex';
+    }
+    function closeAnnounceModal() {
+      document.getElementById('announceModal').style.display = 'none';
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
