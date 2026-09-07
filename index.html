@@ -63,7 +63,7 @@
           <i data-lucide="school" class="w-7 h-7 text-brand-red"></i>
         </div>
         <h2 class="text-2xl font-black uppercase tracking-tight text-black">เข้าสู่ระบบโรงเรียน</h2>
-        <p class="text-xs font-semibold text-slate-500">RSCT School Portal • Real-time Time & Attendance</p>
+        <p class="text-xs font-semibold text-slate-500">RSCT School Portal • Synced Server Clock</p>
       </div>
 
       <div class="space-y-4">
@@ -99,10 +99,10 @@
         </div>
       </div>
 
-      <!-- Real-Time Thailand Clock Bar & User Details -->
+      <!-- Synchronized Thai Clock & User Badge -->
       <div class="flex items-center gap-4">
         <div class="hidden sm:flex flex-col text-right border-r-2 border-black pr-3">
-          <span id="liveThaiDate" class="text-xs font-black text-black">กำลังโหลดวันที่...</span>
+          <span id="liveThaiDate" class="text-xs font-black text-black">กำลังซิงค์วันที่...</span>
           <span id="liveThaiClock" class="text-[11px] font-bold text-brand-red font-mono">--:--:-- น.</span>
         </div>
         <div class="text-right">
@@ -128,7 +128,7 @@
           </div>
           <div>
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide">สถานะโรงเรียน</p>
-            <p id="todaySchoolStatus" class="text-xs sm:text-sm font-black text-black">เปิดเรียนปกติ</p>
+            <p class="text-xs sm:text-sm font-black text-black">เปิดเรียนปกติ</p>
           </div>
         </div>
       </div>
@@ -215,14 +215,12 @@
 
             <!-- Date & Room Selectors -->
             <div class="flex items-center gap-2 flex-wrap">
-              <!-- Calendar / Date Selector (7 Days History) -->
               <select id="dateSelector" onchange="changeViewingDate(this.value)" class="bg-white border-2 border-black text-xs font-black px-2.5 py-1.5 focus:outline-none focus:bg-brand-lightRed cursor-pointer shadow-brutal-sm">
-                <!-- 7 days options populated by JS -->
+                <!-- 7 days options -->
               </select>
 
-              <!-- Room Selector -->
               <select id="roomSelector" onchange="changeViewingRoom(this.value)" class="bg-white border-2 border-black text-xs font-black px-2.5 py-1.5 focus:outline-none focus:bg-brand-lightRed cursor-pointer shadow-brutal-sm">
-                <!-- Rooms populated by JS -->
+                <!-- Rooms options -->
               </select>
 
               <button onclick="openAddRoomModal()" class="hidden teacher-only px-2 py-1.5 bg-black hover:bg-brand-red text-white border-2 border-black text-xs font-black uppercase shadow-brutal-sm transition cursor-pointer">
@@ -359,7 +357,7 @@
     RSCT SCHOOL HUB © 2026 • ADILAN AND KANTAPAT
   </footer>
 
-  <!-- SCRIPT LOGIC (THAILAND REAL-TIME & 7-DAY RETENTION SYSTEM) -->
+  <!-- SCRIPT LOGIC (FIREBASE SERVER TIME SYNC & REALTIME DATABASE) -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAbB3lt210Cj0rd2dKjo86j9kdJzlWjn-8",
@@ -374,12 +372,24 @@
 
     let rtdb = null;
     let isCloudReady = false;
+    let serverTimeOffset = 0; // ตัวแปรชดเชยเวลาให้ตรงกับ Server Google 100%
+
     try {
       firebase.initializeApp(firebaseConfig);
       rtdb = firebase.database();
       isCloudReady = true;
+
+      // ซิงค์เวลาจากเซิร์ฟเวอร์แบบ Real-time
+      rtdb.ref(".info/serverTimeOffset").on("value", snap => {
+        serverTimeOffset = snap.val() || 0;
+      });
     } catch(e) {
       console.warn("Firebase Init Error:", e);
+    }
+
+    // ฟังก์ชันดึงเวลามาตรฐานปัจจุบัน (แก้ไขปัญหาเวลาคอมกับมือถือไม่ตรงกัน)
+    function getExactServerTime() {
+      return Date.now() + serverTimeOffset;
     }
 
     // --- THAI TIME & CALENDAR UTILITIES ---
@@ -387,7 +397,6 @@
     const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
     const THAI_DAYS_FULL = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
 
-    // Format Date to YYYY-MM-DD Key (Local Thai Date)
     function formatDateKey(dateObj) {
       const y = dateObj.getFullYear();
       const m = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -396,28 +405,30 @@
     }
 
     function getTodayDateKey() {
-      return formatDateKey(new Date());
+      return formatDateKey(new Date(getExactServerTime()));
     }
 
-    // Format Thai Date String (e.g. 7 ก.ย. 2569)
     function formatThaiDateShort(dateObj) {
       return `${dateObj.getDate()} ${THAI_MONTHS_SHORT[dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
     }
 
-    // Relative Time Formatter for Thailand (Dynamic & Accurate)
+    // ฟังก์ชันคำนวณเวลาที่ผ่านไป (แม่นยำทุกเครื่อง ไม่ขึ้นกับนาฬิกาของเครื่องใดเครื่องหนึ่ง)
     function formatThaiRelativeTime(timestamp) {
       if (!timestamp) return "เมื่อสักครู่";
-      const now = Date.now();
-      const diffSec = Math.floor((now - timestamp) / 1000);
+      const now = getExactServerTime();
+      let diffSec = Math.floor((now - timestamp) / 1000);
 
-      if (diffSec < 45) return "เมื่อสักครู่";
+      // ป้องกันค่าติดลบกรณีมีเศษมิลลิวินาทีคลาดเคลื่อน
+      if (diffSec < 0) diffSec = 0;
+
+      if (diffSec < 60) return "เมื่อสักครู่";
       if (diffSec < 3600) return `${Math.floor(diffSec / 60)} นาทีที่แล้ว`;
       if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} ชั่วโมงที่แล้ว`;
 
       const d = new Date(timestamp);
       const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} น.`;
       
-      const yesterday = new Date();
+      const yesterday = new Date(now);
       yesterday.setDate(yesterday.getDate() - 1);
       if (formatDateKey(d) === formatDateKey(yesterday)) {
         return `เมื่อวานนี้ ${timeStr}`;
@@ -426,10 +437,10 @@
       return `${formatThaiDateShort(d)} ${timeStr}`;
     }
 
-    // Live Thai Clock Engine
+    // Live Thai Clock Widget (ซิงค์ตรงกันทุกเครื่อง)
     function startLiveClock() {
       function updateClock() {
-        const now = new Date();
+        const now = new Date(getExactServerTime());
         const dayName = THAI_DAYS_FULL[now.getDay()];
         const thaiDateText = `${dayName}ที่ ${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now.getFullYear() + 543}`;
         const timeText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')} น.`;
@@ -502,7 +513,7 @@
     let localData = {
       rooms: defaultRooms,
       students: initialSeedStudents,
-      attendance: {}, // Structure: { [dateKey]: { [studentId]: status } }
+      attendance: {},
       facilities: defaultFacilities,
       announcements: [
         { id: 1, title: "แจ้งกำหนดการสอบกลางภาค ประจำภาคเรียนที่ 1", content: "ทางฝ่ายวิชาการขอแจ้งกำหนดการสอบกลางภาคของนักเรียนทุกระดับชั้น ระหว่างวันที่ 20 - 24 กันยายนนี้", author: "ฝ่ายวิชาการ", timestamp: Date.now() - 3600000 * 24 },
@@ -526,9 +537,17 @@
         document.getElementById('loginModal').style.display = 'none';
         setupDashboard();
       }
+
       if (isCloudReady) {
         listenCloudDatabase();
       }
+
+      // อัปเดตคำว่า 'นาทีที่แล้ว' บนหน้าจออัตโนมัติทุก 15 วินาที
+      setInterval(() => {
+        renderFeed();
+        renderAnnouncements();
+      }, 15000);
+
       lucide.createIcons();
     }
 
@@ -585,9 +604,8 @@
       renderAllUI();
     }
 
-    // --- REALTIME CLOUD LISTENERS & AUTO 7-DAY PRUNING ---
+    // --- REALTIME CLOUD LISTENERS ---
     function listenCloudDatabase() {
-      // 1. Rooms List
       rtdb.ref("school/rooms").on("value", snap => {
         const val = snap.val();
         if (val && Array.isArray(val)) {
@@ -598,7 +616,6 @@
         renderRoomSelector();
       });
 
-      // 2. Students Roster
       rtdb.ref("school/students").on("value", snap => {
         const val = snap.val();
         if (val) {
@@ -612,7 +629,6 @@
         renderClassroom();
       });
 
-      // 3. Attendance History (Auto Prune Data Older Than 7 Days)
       rtdb.ref("school/attendance").on("value", snap => {
         const val = snap.val() || {};
         localData.attendance = val;
@@ -620,7 +636,6 @@
         renderClassroom();
       });
 
-      // 4. Facilities
       rtdb.ref("school/facilities").on("value", snap => {
         const val = snap.val();
         if (val) {
@@ -631,7 +646,6 @@
         }
       });
 
-      // 5. Statuses
       rtdb.ref("school/status").on("value", snap => {
         const val = snap.val();
         if (val) {
@@ -641,7 +655,6 @@
         }
       });
 
-      // 6. Announcements
       rtdb.ref("school/announcements").on("value", snap => {
         const val = snap.val();
         if (val) {
@@ -650,7 +663,6 @@
         }
       });
 
-      // 7. Posts
       rtdb.ref("school/posts").on("value", snap => {
         const val = snap.val();
         if (val) {
@@ -660,30 +672,28 @@
       });
     }
 
-    // Automatically remove records older than 7 days from Firebase to save database space
     function autoPruneOldAttendance(allAttendance) {
       if (!isCloudReady || currentUser?.role !== 'TEACHER') return;
-      const todayMs = new Date().setHours(0,0,0,0);
+      const todayMs = new Date(getExactServerTime()).setHours(0,0,0,0);
       const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
 
       Object.keys(allAttendance).forEach(dateKey => {
         const recDate = new Date(dateKey).setHours(0,0,0,0);
         if (todayMs - recDate > sevenDaysMs) {
-          // Beyond 7 days -> Delete from Firebase
           rtdb.ref(`school/attendance/${dateKey}`).remove();
         }
       });
     }
 
-    // --- DATE SELECTOR (7-DAY HISTORY CALENDAR) ---
+    // --- DATE SELECTOR ---
     function renderDateSelector() {
       const select = document.getElementById("dateSelector");
       if (!select) return;
       select.innerHTML = "";
 
-      const today = new Date();
+      const today = new Date(getExactServerTime());
       for (let i = 0; i < 7; i++) {
-        const d = new Date();
+        const d = new Date(today);
         d.setDate(today.getDate() - i);
         const key = formatDateKey(d);
 
@@ -726,7 +736,6 @@
       renderClassroom();
     }
 
-    // --- ROOM & STUDENT CRUD ---
     function openAddRoomModal() { document.getElementById('addRoomModal').style.display = 'flex'; }
     function closeAddRoomModal() {
       document.getElementById('addRoomModal').style.display = 'none';
@@ -780,7 +789,6 @@
       localData.students = localData.students.filter(s => s.id !== id);
       if (isCloudReady) {
         rtdb.ref(`school/students/${id}`).remove();
-        // Remove from all date attendances
         rtdb.ref("school/attendance").once("value", snap => {
           const val = snap.val() || {};
           Object.keys(val).forEach(dKey => {
@@ -791,7 +799,7 @@
       renderClassroom();
     }
 
-    // --- ATTENDANCE SYSTEM (REAL-TIME HISTORY & LOCKING) ---
+    // --- ATTENDANCE SYSTEM ---
     const ATTENDANCE_CONFIG = {
       PRESENT: { label: "✓ มาเรียน", bg: "bg-emerald-300 text-black border-black", next: "LEAVE_PERSONAL" },
       LEAVE_PERSONAL: { label: "📝 ลากิจ", bg: "bg-yellow-300 text-black border-black", next: "LEAVE_SICK" },
@@ -803,7 +811,6 @@
     function cycleStudentAttendance(studentId) {
       if (currentUser.role !== 'TEACHER') return;
 
-      // Lock Past Dates: Only allow editing if viewing today!
       const todayKey = getTodayDateKey();
       if (viewingDateKey !== todayKey) {
         alert("🔒 ข้อมูลย้อนหลังถูกบันทึกเป็นประวัติแล้ว ไม่สามารถแก้ไขได้");
@@ -833,7 +840,6 @@
       const isToday = (viewingDateKey === todayKey);
       const isTeacher = (currentUser && currentUser.role === 'TEACHER');
 
-      // Update Attendance Mode Notice Banner
       const noticeEl = document.getElementById("attendanceModeNotice");
       if (noticeEl) {
         if (isToday) {
@@ -888,7 +894,6 @@
         });
       }
 
-      // Stats Bar Render
       document.getElementById('roomAttendanceStats').innerHTML = `
         <span class="px-2 py-0.5 border border-black bg-emerald-300 text-black">มา: ${stats.PRESENT}</span>
         <span class="px-2 py-0.5 border border-black bg-yellow-300 text-black">ลากิจ: ${stats.LEAVE_PERSONAL}</span>
@@ -941,7 +946,7 @@
         title,
         content,
         author: `${currentUser.name} (${currentUser.room})`,
-        timestamp: Date.now()
+        timestamp: getExactServerTime() // ใช้เวลามาตรฐาน Server
       });
       renderAnnouncements();
       if (isCloudReady) rtdb.ref("school/announcements").set(localData.announcements);
@@ -971,7 +976,7 @@
         authorRoom: currentUser.room || "ม.5/1",
         authorId: currentUser.id,
         status: "OPEN",
-        timestamp: Date.now()
+        timestamp: getExactServerTime() // ใช้เวลามาตรฐาน Server
       });
 
       renderFeed();
