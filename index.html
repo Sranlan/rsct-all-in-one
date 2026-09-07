@@ -63,7 +63,7 @@
           <i data-lucide="school" class="w-7 h-7 text-brand-red"></i>
         </div>
         <h2 class="text-2xl font-black uppercase tracking-tight text-black">เข้าสู่ระบบโรงเรียน</h2>
-        <p class="text-xs font-semibold text-slate-500">RSCT School Portal • Database Authentication</p>
+        <p class="text-xs font-semibold text-slate-500">RSCT School Portal • Real-time Time & Attendance</p>
       </div>
 
       <div class="space-y-4">
@@ -99,7 +99,12 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
+      <!-- Real-Time Thailand Clock Bar & User Details -->
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex flex-col text-right border-r-2 border-black pr-3">
+          <span id="liveThaiDate" class="text-xs font-black text-black">กำลังโหลดวันที่...</span>
+          <span id="liveThaiClock" class="text-[11px] font-bold text-brand-red font-mono">--:--:-- น.</span>
+        </div>
         <div class="text-right">
           <p id="userNameDisplay" class="text-xs sm:text-sm font-black text-black">กำลังโหลด...</p>
           <span id="userRoleBadge" class="text-[10px] font-black px-2 py-0.5 bg-white text-black border border-black inline-block">นักเรียน</span>
@@ -119,11 +124,11 @@
       <div class="bg-white border-2 border-black p-4 shadow-brutal relative">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 bg-emerald-400 border-2 border-black flex items-center justify-center shrink-0">
-            <i data-lucide="school" class="w-5 h-5 text-black"></i>
+            <i data-lucide="calendar" class="w-5 h-5 text-black"></i>
           </div>
           <div>
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide">สถานะโรงเรียน</p>
-            <p class="text-xs sm:text-sm font-black text-black">เปิดเรียนปกติ</p>
+            <p id="todaySchoolStatus" class="text-xs sm:text-sm font-black text-black">เปิดเรียนปกติ</p>
           </div>
         </div>
       </div>
@@ -147,7 +152,7 @@
             <i data-lucide="users" class="w-5 h-5"></i>
           </div>
           <div>
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide">ยอดมาเรียนรวม</p>
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide">ยอดมาเรียนรวมวันนี้</p>
             <p id="schoolAttendanceCount" class="text-xs sm:text-sm font-black text-brand-red">None</p>
           </div>
         </div>
@@ -197,7 +202,7 @@
           <div id="facilitiesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
         </div>
 
-        <!-- 3.3 CLASSROOM & ATTENDANCE SYSTEM (MULTI-ROOM & CLOUD POWERED) -->
+        <!-- 3.3 CLASSROOM & ATTENDANCE SYSTEM WITH 7-DAY REAL-TIME HISTORY -->
         <div id="classroomSection" class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal space-y-4">
           <div class="flex items-center justify-between flex-wrap gap-2 border-b-2 border-black pb-3">
             <div>
@@ -205,13 +210,19 @@
                 <span class="w-3 h-3 bg-emerald-500 border border-black inline-block"></span>
                 <h3 class="font-black text-base sm:text-lg uppercase text-black">บัญชีรายชื่อ & เช็คชื่อประจำชั้น</h3>
               </div>
-              <p class="text-xs font-bold text-slate-500">เลือกชั้นเรียนเพื่อดูรายชื่อ หรือจัดการข้อมูลนักเรียน</p>
+              <p id="attendanceModeNotice" class="text-xs font-bold text-slate-500">กำลังโหลด...</p>
             </div>
 
-            <!-- Room Selector & Actions -->
+            <!-- Date & Room Selectors -->
             <div class="flex items-center gap-2 flex-wrap">
+              <!-- Calendar / Date Selector (7 Days History) -->
+              <select id="dateSelector" onchange="changeViewingDate(this.value)" class="bg-white border-2 border-black text-xs font-black px-2.5 py-1.5 focus:outline-none focus:bg-brand-lightRed cursor-pointer shadow-brutal-sm">
+                <!-- 7 days options populated by JS -->
+              </select>
+
+              <!-- Room Selector -->
               <select id="roomSelector" onchange="changeViewingRoom(this.value)" class="bg-white border-2 border-black text-xs font-black px-2.5 py-1.5 focus:outline-none focus:bg-brand-lightRed cursor-pointer shadow-brutal-sm">
-                <!-- Injected by JS -->
+                <!-- Rooms populated by JS -->
               </select>
 
               <button onclick="openAddRoomModal()" class="hidden teacher-only px-2 py-1.5 bg-black hover:bg-brand-red text-white border-2 border-black text-xs font-black uppercase shadow-brutal-sm transition cursor-pointer">
@@ -348,7 +359,7 @@
     RSCT SCHOOL HUB © 2026 • ADILAN AND KANTAPAT
   </footer>
 
-  <!-- SCRIPT LOGIC (FIREBASE REALTIME DATABASE) -->
+  <!-- SCRIPT LOGIC (THAILAND REAL-TIME & 7-DAY RETENTION SYSTEM) -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAbB3lt210Cj0rd2dKjo86j9kdJzlWjn-8",
@@ -371,7 +382,68 @@
       console.warn("Firebase Init Error:", e);
     }
 
-    // Default 6 Facilities
+    // --- THAI TIME & CALENDAR UTILITIES ---
+    const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+    const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+    const THAI_DAYS_FULL = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
+
+    // Format Date to YYYY-MM-DD Key (Local Thai Date)
+    function formatDateKey(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getTodayDateKey() {
+      return formatDateKey(new Date());
+    }
+
+    // Format Thai Date String (e.g. 7 ก.ย. 2569)
+    function formatThaiDateShort(dateObj) {
+      return `${dateObj.getDate()} ${THAI_MONTHS_SHORT[dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
+    }
+
+    // Relative Time Formatter for Thailand (Dynamic & Accurate)
+    function formatThaiRelativeTime(timestamp) {
+      if (!timestamp) return "เมื่อสักครู่";
+      const now = Date.now();
+      const diffSec = Math.floor((now - timestamp) / 1000);
+
+      if (diffSec < 45) return "เมื่อสักครู่";
+      if (diffSec < 3600) return `${Math.floor(diffSec / 60)} นาทีที่แล้ว`;
+      if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} ชั่วโมงที่แล้ว`;
+
+      const d = new Date(timestamp);
+      const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} น.`;
+      
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      if (formatDateKey(d) === formatDateKey(yesterday)) {
+        return `เมื่อวานนี้ ${timeStr}`;
+      }
+
+      return `${formatThaiDateShort(d)} ${timeStr}`;
+    }
+
+    // Live Thai Clock Engine
+    function startLiveClock() {
+      function updateClock() {
+        const now = new Date();
+        const dayName = THAI_DAYS_FULL[now.getDay()];
+        const thaiDateText = `${dayName}ที่ ${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now.getFullYear() + 543}`;
+        const timeText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')} น.`;
+
+        const dateEl = document.getElementById("liveThaiDate");
+        const clockEl = document.getElementById("liveThaiClock");
+        if (dateEl) dateEl.innerText = thaiDateText;
+        if (clockEl) clockEl.innerText = timeText;
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
+    }
+
+    // --- DATA & INITIAL STATES ---
     const defaultFacilities = [
       { id: 1, name: "สนามฟุตซอลใต้โดม", location: "อาคารโดมอเนกประสงค์", status: "AVAILABLE", note: "เปิดใช้งานปกติ" },
       { id: 2, name: "สนามตะกร้อหลังอาคาร 3", location: "หลังอาคารเรียน 3", status: "AVAILABLE", note: "เปิดใช้งานปกติ" },
@@ -381,7 +453,6 @@
       { id: 6, name: "สนามฮอกกี้", location: "สนามกีฬาฝั่งทิศใต้", status: "BUSY", note: "ชมรมกีฬาซ้อมช่วงเย็น" }
     ];
 
-    // Default Rooms (ม.1/1 - ม.6/4)
     const defaultRooms = [
       "ม.1/1", "ม.1/2", "ม.1/3", "ม.1/4",
       "ม.2/1", "ม.2/2", "ม.2/3", "ม.2/4",
@@ -391,7 +462,6 @@
       "ม.6/1", "ม.6/2", "ม.6/3", "ม.6/4"
     ];
 
-    // Default 30 Students for 5/1 Seed
     const initialSeedStudents = [
       { id: "07925", name: "นางสาวณูรอัณร์ มะยะเอ๊ะ", no: 1, room: "ม.5/1" },
       { id: "07929", name: "นางสาวอาซียัน มาหามะ", no: 2, room: "ม.5/1" },
@@ -427,25 +497,29 @@
 
     let currentUser = JSON.parse(sessionStorage.getItem('brutal_current_user')) || null;
     let viewingRoom = "ม.5/1";
+    let viewingDateKey = getTodayDateKey();
 
     let localData = {
       rooms: defaultRooms,
       students: initialSeedStudents,
-      attendance: {}, // { studentId: "PRESENT" | "ABSENT" | "LEAVE_PERSONAL" | "LEAVE_SICK" | "UNCHECKED" }
+      attendance: {}, // Structure: { [dateKey]: { [studentId]: status } }
       facilities: defaultFacilities,
       announcements: [
-        { id: 1, title: "แจ้งกำหนดการสอบกลางภาค ประจำภาคเรียนที่ 1", content: "ทางฝ่ายวิชาการขอแจ้งกำหนดการสอบกลางภาคของนักเรียนทุกระดับชั้น ระหว่างวันที่ 20 - 24 กันยายนนี้", author: "ฝ่ายวิชาการ", date: "25 ส.ค." },
-        { id: 2, title: "ประกาศระเบียบการใช้บริการสหกรณ์โรงเรียน", content: "สหกรณ์โรงเรียนเปิดให้บริการเวลา 10:00 - 16:00 น. ขอความร่วมมือในการเข้าแถวและรักษาความสะอาด", author: "อาจารย์ประวิทย์ เพ็ชรดี (ฝ่ายปกครอง)", date: "24 ส.ค." }
+        { id: 1, title: "แจ้งกำหนดการสอบกลางภาค ประจำภาคเรียนที่ 1", content: "ทางฝ่ายวิชาการขอแจ้งกำหนดการสอบกลางภาคของนักเรียนทุกระดับชั้น ระหว่างวันที่ 20 - 24 กันยายนนี้", author: "ฝ่ายวิชาการ", timestamp: Date.now() - 3600000 * 24 },
+        { id: 2, title: "ประกาศระเบียบการใช้บริการสหกรณ์โรงเรียน", content: "สหกรณ์โรงเรียนเปิดให้บริการเวลา 10:00 - 16:00 น. ขอความร่วมมือในการเข้าแถวและรักษาความสะอาด", author: "อาจารย์ประวิทย์ เพ็ชรดี (ฝ่ายปกครอง)", timestamp: Date.now() - 3600000 * 48 }
       ],
       posts: [
-        { id: 1, title: "เจอกระเป๋าสตางค์สีดำ ลืมไว้ที่สนามฟุตซอลใต้โดม นำส่งไว้ที่โต๊ะ อ.ประวิทย์ ครับ", category: "FOUND", authorName: "นายกันตพัฒน์ ประทุมสุวรรณ", authorRoom: "ม.5/1", authorId: "07968", status: "OPEN", time: "15 นาทีที่แล้ว" }
+        { id: 1, title: "เจอกระเป๋าสตางค์สีดำ ลืมไว้ที่สนามฟุตซอลใต้โดม นำส่งไว้ที่โต๊ะ อ.ประวิทย์ ครับ", category: "FOUND", authorName: "นายกันตพัฒน์ ประทุมสุวรรณ", authorRoom: "ม.5/1", authorId: "07968", status: "OPEN", timestamp: Date.now() - 900000 }
       ],
       schoolAttendance: "None",
       isCoopOpen: true
     };
 
     function init() {
+      startLiveClock();
+      renderDateSelector();
       renderAllUI();
+
       if (!currentUser) {
         document.getElementById('loginModal').style.display = 'flex';
       } else {
@@ -468,13 +542,11 @@
         return;
       }
 
-      // Check Teacher Accounts
       if (id === "T001" || id.includes("ประวิทย์") || id.toLowerCase() === "prawit") {
         currentUser = { id: "T001", name: "อาจารย์ประวิทย์ เพ็ชรดี", role: "TEACHER", room: "ฝ่ายปกครอง" };
       } else if (id === "T002" || id.includes("นพมาศ")) {
         currentUser = { id: "T002", name: "คุณครูนพมาศ หลีเจริญ", role: "TEACHER", room: "ครูที่ปรึกษา ม.5/1" };
       } else {
-        // Look for Student in Database
         const found = localData.students.find(s => s.id === id);
         if (found) {
           currentUser = { ...found, role: "STUDENT" };
@@ -513,7 +585,7 @@
       renderAllUI();
     }
 
-    // --- REALTIME DATABASE LISTENERS & SYNC ---
+    // --- REALTIME CLOUD LISTENERS & AUTO 7-DAY PRUNING ---
     function listenCloudDatabase() {
       // 1. Rooms List
       rtdb.ref("school/rooms").on("value", snap => {
@@ -526,13 +598,12 @@
         renderRoomSelector();
       });
 
-      // 2. Students Roster (Entire School)
+      // 2. Students Roster
       rtdb.ref("school/students").on("value", snap => {
         const val = snap.val();
         if (val) {
           localData.students = Object.values(val);
         } else {
-          // Seed Initial 30 students to Firebase if empty
           const seedMap = {};
           initialSeedStudents.forEach(st => { seedMap[st.id] = st; });
           rtdb.ref("school/students").set(seedMap);
@@ -541,10 +612,11 @@
         renderClassroom();
       });
 
-      // 3. Attendance Statuses
+      // 3. Attendance History (Auto Prune Data Older Than 7 Days)
       rtdb.ref("school/attendance").on("value", snap => {
-        const val = snap.val();
-        localData.attendance = val || {};
+        const val = snap.val() || {};
+        localData.attendance = val;
+        autoPruneOldAttendance(val);
         renderClassroom();
       });
 
@@ -588,9 +660,57 @@
       });
     }
 
-    // --- ROOM & STUDENT CRUD (TEACHER POWER) ---
+    // Automatically remove records older than 7 days from Firebase to save database space
+    function autoPruneOldAttendance(allAttendance) {
+      if (!isCloudReady || currentUser?.role !== 'TEACHER') return;
+      const todayMs = new Date().setHours(0,0,0,0);
+      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
+      Object.keys(allAttendance).forEach(dateKey => {
+        const recDate = new Date(dateKey).setHours(0,0,0,0);
+        if (todayMs - recDate > sevenDaysMs) {
+          // Beyond 7 days -> Delete from Firebase
+          rtdb.ref(`school/attendance/${dateKey}`).remove();
+        }
+      });
+    }
+
+    // --- DATE SELECTOR (7-DAY HISTORY CALENDAR) ---
+    function renderDateSelector() {
+      const select = document.getElementById("dateSelector");
+      if (!select) return;
+      select.innerHTML = "";
+
+      const today = new Date();
+      for (let i = 0; i < 7; i++) {
+        const d = new Date();
+        d.setDate(today.getDate() - i);
+        const key = formatDateKey(d);
+
+        const opt = document.createElement("option");
+        opt.value = key;
+        if (i === 0) {
+          opt.innerText = `📅 วันนี้ (${formatThaiDateShort(d)})`;
+        } else if (i === 1) {
+          opt.innerText = `📅 เมื่อวาน (${formatThaiDateShort(d)})`;
+        } else {
+          opt.innerText = `📅 ${formatThaiDateShort(d)}`;
+        }
+
+        if (key === viewingDateKey) opt.selected = true;
+        select.appendChild(opt);
+      }
+    }
+
+    function changeViewingDate(dateKey) {
+      viewingDateKey = dateKey;
+      renderClassroom();
+    }
+
+    // --- ROOM SELECTOR ---
     function renderRoomSelector() {
       const select = document.getElementById("roomSelector");
+      if (!select) return;
       select.innerHTML = "";
       localData.rooms.forEach(rm => {
         const opt = document.createElement("option");
@@ -606,9 +726,8 @@
       renderClassroom();
     }
 
-    function openAddRoomModal() {
-      document.getElementById('addRoomModal').style.display = 'flex';
-    }
+    // --- ROOM & STUDENT CRUD ---
+    function openAddRoomModal() { document.getElementById('addRoomModal').style.display = 'flex'; }
     function closeAddRoomModal() {
       document.getElementById('addRoomModal').style.display = 'none';
       document.getElementById('newRoomName').value = "";
@@ -661,13 +780,18 @@
       localData.students = localData.students.filter(s => s.id !== id);
       if (isCloudReady) {
         rtdb.ref(`school/students/${id}`).remove();
-        rtdb.ref(`school/attendance/${id}`).remove();
+        // Remove from all date attendances
+        rtdb.ref("school/attendance").once("value", snap => {
+          const val = snap.val() || {};
+          Object.keys(val).forEach(dKey => {
+            if (val[dKey][id]) rtdb.ref(`school/attendance/${dKey}/${id}`).remove();
+          });
+        });
       }
       renderClassroom();
     }
 
-    // --- ATTENDANCE CYCLER (5 STATUSES) ---
-    // UNCHECKED -> PRESENT -> LEAVE_PERSONAL -> LEAVE_SICK -> ABSENT -> UNCHECKED
+    // --- ATTENDANCE SYSTEM (REAL-TIME HISTORY & LOCKING) ---
     const ATTENDANCE_CONFIG = {
       PRESENT: { label: "✓ มาเรียน", bg: "bg-emerald-300 text-black border-black", next: "LEAVE_PERSONAL" },
       LEAVE_PERSONAL: { label: "📝 ลากิจ", bg: "bg-yellow-300 text-black border-black", next: "LEAVE_SICK" },
@@ -678,19 +802,47 @@
 
     function cycleStudentAttendance(studentId) {
       if (currentUser.role !== 'TEACHER') return;
-      const current = localData.attendance[studentId] || "UNCHECKED";
+
+      // Lock Past Dates: Only allow editing if viewing today!
+      const todayKey = getTodayDateKey();
+      if (viewingDateKey !== todayKey) {
+        alert("🔒 ข้อมูลย้อนหลังถูกบันทึกเป็นประวัติแล้ว ไม่สามารถแก้ไขได้");
+        return;
+      }
+
+      if (!localData.attendance[viewingDateKey]) {
+        localData.attendance[viewingDateKey] = {};
+      }
+
+      const current = localData.attendance[viewingDateKey][studentId] || "UNCHECKED";
       const nextStatus = ATTENDANCE_CONFIG[current]?.next || "PRESENT";
 
-      localData.attendance[studentId] = nextStatus;
+      localData.attendance[viewingDateKey][studentId] = nextStatus;
       renderClassroom();
 
       if (isCloudReady) {
-        rtdb.ref(`school/attendance/${studentId}`).set(nextStatus);
+        rtdb.ref(`school/attendance/${viewingDateKey}/${studentId}`).set(nextStatus);
       }
     }
 
     function renderClassroom() {
       renderRoomSelector();
+      renderDateSelector();
+
+      const todayKey = getTodayDateKey();
+      const isToday = (viewingDateKey === todayKey);
+      const isTeacher = (currentUser && currentUser.role === 'TEACHER');
+
+      // Update Attendance Mode Notice Banner
+      const noticeEl = document.getElementById("attendanceModeNotice");
+      if (noticeEl) {
+        if (isToday) {
+          noticeEl.innerHTML = `<span class="text-emerald-700 font-black">● วันปัจจุบัน</span> ${isTeacher ? '• คุณครูสามารถคลิกเปลี่ยนสถานะได้' : ''}`;
+        } else {
+          noticeEl.innerHTML = `<span class="text-brand-red font-black">🔒 บันทึกประวัติย้อนหลัง (อ่านอย่างเดียว)</span>`;
+        }
+      }
+
       const tbody = document.getElementById('studentRosterBody');
       tbody.innerHTML = "";
 
@@ -698,13 +850,14 @@
         .filter(s => s.room === viewingRoom)
         .sort((a, b) => (a.no || 0) - (b.no || 0));
 
+      const currentDayAttendance = (localData.attendance && localData.attendance[viewingDateKey]) || {};
       let stats = { PRESENT: 0, LEAVE_PERSONAL: 0, LEAVE_SICK: 0, ABSENT: 0, UNCHECKED: 0 };
 
       if (roomStudents.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 font-bold text-xs">ยังไม่มีรายชื่อนักเรียนในห้อง ${viewingRoom} (ครูสามารถกดปุ่ม + เพิ่มนักเรียน ได้)</td></tr>`;
       } else {
         roomStudents.forEach(st => {
-          const statusKey = localData.attendance[st.id] || "UNCHECKED";
+          const statusKey = currentDayAttendance[st.id] || "UNCHECKED";
           stats[statusKey] = (stats[statusKey] || 0) + 1;
           const conf = ATTENDANCE_CONFIG[statusKey] || ATTENDANCE_CONFIG.UNCHECKED;
 
@@ -715,7 +868,7 @@
             <td class="py-2.5 px-3 font-mono font-bold text-black">${st.id}</td>
             <td class="py-2.5 px-3 font-bold text-black">${st.name}</td>
             <td class="py-2.5 px-3 text-center">
-              ${currentUser && currentUser.role === 'TEACHER' ? `
+              ${isTeacher && isToday ? `
                 <button onclick="cycleStudentAttendance('${st.id}')" title="คลิกเพื่อเปลี่ยนสถานะ" class="px-2.5 py-1 text-xs font-black border-2 shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition cursor-pointer ${conf.bg}">
                   ${conf.label}
                 </button>
@@ -725,7 +878,7 @@
                 </span>
               `}
             </td>
-            <td class="py-2.5 px-3 text-right teacher-only ${currentUser && currentUser.role === 'TEACHER' ? '' : 'hidden'}">
+            <td class="py-2.5 px-3 text-right teacher-only ${isTeacher ? '' : 'hidden'}">
               <button onclick="deleteStudentCloud('${st.id}', '${st.name}')" title="ลบนักเรียน" class="p-1 text-slate-400 hover:text-brand-red font-bold transition cursor-pointer">
                 <i data-lucide="trash-2" class="w-4 h-4 inline"></i>
               </button>
@@ -783,7 +936,13 @@
       const content = document.getElementById('annContent').value.trim();
       if (!title || !content) return alert("กรุณากรอกข้อมูลให้ครบ");
 
-      localData.announcements.unshift({ id: Date.now(), title, content, author: `${currentUser.name} (${currentUser.room})`, date: "วันนี้" });
+      localData.announcements.unshift({
+        id: Date.now(),
+        title,
+        content,
+        author: `${currentUser.name} (${currentUser.room})`,
+        timestamp: Date.now()
+      });
       renderAnnouncements();
       if (isCloudReady) rtdb.ref("school/announcements").set(localData.announcements);
 
@@ -812,7 +971,7 @@
         authorRoom: currentUser.room || "ม.5/1",
         authorId: currentUser.id,
         status: "OPEN",
-        time: "เมื่อสักครู่"
+        timestamp: Date.now()
       });
 
       renderFeed();
@@ -868,7 +1027,7 @@
         item.innerHTML = `
           <div class="flex items-center justify-between mb-1">
             <span class="px-2 py-0.5 text-[9px] font-black bg-black text-white uppercase border border-black">NEWS RELEASE</span>
-            <span class="text-[11px] font-bold text-slate-500">${a.date}</span>
+            <span class="text-[11px] font-bold text-slate-500">${formatThaiRelativeTime(a.timestamp)}</span>
           </div>
           <h4 class="font-black text-black text-sm mb-1">${a.title}</h4>
           <p class="text-xs text-slate-700 font-medium leading-relaxed">${a.content}</p>
@@ -899,7 +1058,7 @@
             <span class="px-2 py-0.5 text-[9px] font-black border border-black uppercase ${badges[p.category].style}">
               ${badges[p.category].text}
             </span>
-            <span class="text-[10px] font-bold text-slate-500">${p.time}</span>
+            <span class="text-[10px] font-bold text-slate-500">${formatThaiRelativeTime(p.timestamp)}</span>
           </div>
           <p class="text-xs sm:text-sm font-bold ${isResolved ? 'line-through text-slate-400' : 'text-black'} mb-2">${p.title}</p>
           <div class="flex items-center justify-between text-[11px] pt-1.5 border-t border-black/10">
