@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RSCT SCHOOL Portal (Real-time Cloud)</title>
+  <title>RSCT SCHOOL Portal (Real-time Cloud & Theme Customizer)</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts: Prompt -->
@@ -23,60 +23,98 @@
           fontFamily: { sans: ['Prompt', 'sans-serif'] },
           colors: {
             brand: {
-              red: '#dc2626',
-              lightRed: '#fee2e2',
               surface: '#f4f4f5'
             }
-          },
-          boxShadow: {
-            'brutal': '4px 4px 0px 0px #09090b',
-            'brutal-sm': '2px 2px 0px 0px #09090b',
-            'brutal-lg': '6px 6px 0px 0px #09090b',
           }
         }
       }
     }
   </script>
   <style>
+    /* DYNAMIC CSS VARIABLES (MANAGED BY THEME ENGINE) */
+    :root {
+      --theme-accent: #dc2626;
+      --theme-accent-light: #fee2e2;
+      --theme-radius: 0px;
+      --theme-shadow: 4px 4px 0px 0px #09090b;
+      --theme-shadow-sm: 2px 2px 0px 0px #09090b;
+      --theme-shadow-lg: 6px 6px 0px 0px #09090b;
+    }
+
     body {
       background-color: #f8fafc;
       color: #09090b;
-      background-image: radial-gradient(#09090b 0.75px, transparent 0.75px);
-      background-size: 24px 24px;
     }
+
+    /* THEME ACCENT UTILITY CLASSES */
+    .bg-theme-accent { background-color: var(--theme-accent) !important; color: #ffffff !important; }
+    .bg-theme-light { background-color: var(--theme-accent-light) !important; }
+    .text-theme-accent { color: var(--theme-accent) !important; }
+    .border-theme-accent { border-color: var(--theme-accent) !important; }
+
+    /* DYNAMIC BRUTAL SHADOWS & CORNERS */
+    .brutal-card, .brutal-box {
+      border-radius: var(--theme-radius) !important;
+      box-shadow: var(--theme-shadow) !important;
+    }
+    .brutal-sm {
+      border-radius: var(--theme-radius) !important;
+      box-shadow: var(--theme-shadow-sm) !important;
+    }
+    .brutal-lg {
+      border-radius: var(--theme-radius) !important;
+      box-shadow: var(--theme-shadow-lg) !important;
+    }
+
+    /* BACKGROUND PATTERNS */
+    .pattern-dots {
+      background-image: radial-gradient(#09090b 0.8px, transparent 0.8px) !important;
+      background-size: 22px 22px !important;
+    }
+    .pattern-grid {
+      background-image: linear-gradient(to right, #e2e8f0 1.5px, transparent 1.5px), linear-gradient(to bottom, #e2e8f0 1.5px, transparent 1.5px) !important;
+      background-size: 24px 24px !important;
+    }
+    .pattern-stripes {
+      background-image: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 10px, #f8fafc 10px, #f8fafc 20px) !important;
+    }
+    .pattern-clean {
+      background-image: none !important;
+    }
+
     .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: #f4f4f5; border-left: 2px solid #09090b; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #09090b; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans selection:bg-brand-red selection:text-white">
+<body id="mainBody" class="min-h-screen flex flex-col font-sans pattern-dots">
 
   <!-- 1. LOGIN SCREEN -->
   <div id="loginModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-center justify-center p-4">
-    <div class="bg-white border-4 border-black p-6 sm:p-8 max-w-md w-full shadow-brutal-lg relative">
-      <div class="absolute -top-5 left-6 bg-brand-red text-white border-2 border-black px-3 py-1 text-xs font-black uppercase tracking-wider shadow-brutal-sm">
+    <div class="bg-white border-4 border-black p-6 sm:p-8 max-w-md w-full brutal-lg relative">
+      <div class="absolute -top-5 left-6 bg-theme-accent border-2 border-black px-3 py-1 text-xs font-black uppercase tracking-wider brutal-sm">
         AUTH REQUIRED
       </div>
 
       <div class="text-left space-y-2 mb-6 pt-2">
-        <div class="w-12 h-12 bg-black text-white border-2 border-black flex items-center justify-center font-black shadow-brutal-sm mb-3">
-          <i data-lucide="school" class="w-7 h-7 text-brand-red"></i>
+        <div class="w-12 h-12 bg-black border-2 border-black flex items-center justify-center font-black brutal-sm mb-3">
+          <i data-lucide="school" class="w-7 h-7 text-theme-accent"></i>
         </div>
         <h2 class="text-2xl font-black uppercase tracking-tight text-black">เข้าสู่ระบบโรงเรียน</h2>
-        <p class="text-xs font-semibold text-slate-500">RSCT School Portal • Synced Server Clock</p>
+        <p class="text-xs font-semibold text-slate-500">RSCT School Portal • Personal Customizer Ready</p>
       </div>
 
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-black uppercase text-black mb-1.5">รหัสประจำตัว (นักเรียน / อาจารย์)</label>
-          <input id="loginId" type="text" placeholder="เช่น 07974 หรือ T001" class="w-full px-3.5 py-2.5 bg-white border-2 border-black text-sm font-semibold focus:outline-none focus:bg-brand-lightRed transition">
+          <input id="loginId" type="text" placeholder="เช่น 07974 หรือ T001" class="w-full px-3.5 py-2.5 bg-white border-2 border-black text-sm font-semibold focus:outline-none focus:bg-theme-light transition">
         </div>
         <div>
           <label class="block text-xs font-black uppercase text-black mb-1.5">รหัสผ่าน (PIN)</label>
-          <input id="loginPin" type="password" placeholder="กรอกรหัส 5 หลัก (00001)" class="w-full px-3.5 py-2.5 bg-white border-2 border-black text-sm font-semibold focus:outline-none focus:bg-brand-lightRed transition">
+          <input id="loginPin" type="password" placeholder="กรอกรหัส 5 หลัก (00001)" class="w-full px-3.5 py-2.5 bg-white border-2 border-black text-sm font-semibold focus:outline-none focus:bg-theme-light transition">
         </div>
 
-        <button type="button" onclick="handleLogin()" class="w-full py-3 bg-brand-red hover:bg-black text-white border-2 border-black font-black uppercase tracking-wide text-sm shadow-brutal hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-2 cursor-pointer">
+        <button type="button" onclick="handleLogin()" class="w-full py-3 bg-theme-accent hover:bg-black border-2 border-black font-black uppercase tracking-wide text-sm brutal-card hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all flex items-center justify-center gap-2 cursor-pointer">
           <span>เข้าสู่ระบบ</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
@@ -84,15 +122,65 @@
     </div>
   </div>
 
-  <!-- 2. TOP NAVBAR -->
+  <!-- 2. SIDEBAR DRAWER (แถบเมนู 3 ขีด ☰) -->
+  <div id="sidebarBackdrop" onclick="toggleSidebar()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden transition-opacity"></div>
+  <aside id="sidebarDrawer" class="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-white border-r-4 border-black z-50 transform -translate-x-full transition-transform duration-200 flex flex-col brutal-lg">
+    <div class="p-5 border-b-4 border-black flex items-center justify-between bg-black text-white">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 bg-theme-accent border border-white flex items-center justify-center">
+          <i data-lucide="grid" class="w-4 h-4 text-white"></i>
+        </div>
+        <span class="font-black text-base uppercase tracking-wider">RSCT MENU</span>
+      </div>
+      <button onclick="toggleSidebar()" class="p-1 border-2 border-white hover:bg-theme-accent transition cursor-pointer">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="p-4 space-y-2 flex-1">
+      <button onclick="navigateView('dashboard')" class="w-full p-3 bg-white hover:bg-theme-light border-2 border-black font-black text-sm text-left flex items-center gap-3 brutal-sm hover:translate-x-1 transition cursor-pointer">
+        <i data-lucide="layout-dashboard" class="w-5 h-5 text-theme-accent"></i>
+        <span>หน้าแรก (แดชบอร์ดส่วนกลาง)</span>
+      </button>
+
+      <button onclick="navigateView('settings')" class="w-full p-3 bg-white hover:bg-theme-light border-2 border-black font-black text-sm text-left flex items-center gap-3 brutal-sm hover:translate-x-1 transition cursor-pointer">
+        <i data-lucide="palette" class="w-5 h-5 text-theme-accent"></i>
+        <span>ห้องปรับแต่งธีม UI (Customizer)</span>
+      </button>
+
+      <div class="pt-4 border-t-2 border-black/20 space-y-2 text-xs font-bold text-slate-500">
+        <p class="uppercase font-black text-black">⚙️ ข้อมูลผู้ใช้งานปัจจุบัน</p>
+        <p>• ชื่อ: <span id="sidebarUserName" class="text-black">-</span></p>
+        <p>• สิทธิ์: <span id="sidebarUserRole" class="text-black">-</span></p>
+        <p>• ห้อง: <span id="sidebarUserRoom" class="text-black">-</span></p>
+      </div>
+    </div>
+
+    <div class="p-4 border-t-4 border-black bg-brand-surface">
+      <button onclick="logout()" class="w-full py-2.5 bg-black hover:bg-theme-accent text-white border-2 border-black font-black uppercase text-xs flex items-center justify-center gap-2 brutal-sm cursor-pointer transition">
+        <i data-lucide="log-out" class="w-4 h-4"></i>
+        <span>ออกจากระบบ</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- 3. TOP NAVBAR -->
   <header class="sticky top-0 z-40 bg-white border-b-4 border-black">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Hamburger Button + Brand Logo -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-brand-red border-2 border-black flex items-center justify-center text-white shadow-brutal-sm">
-          <i data-lucide="zap" class="w-6 h-6 fill-current"></i>
+        <button onclick="toggleSidebar()" title="เปิดเมนู" class="p-2 bg-white hover:bg-theme-light border-2 border-black brutal-sm active:translate-x-0.5 active:translate-y-0.5 transition cursor-pointer">
+          <i data-lucide="menu" class="w-5 h-5 text-black"></i>
+        </button>
+
+        <div class="w-9 h-9 bg-theme-accent border-2 border-black flex items-center justify-center text-white brutal-sm">
+          <i data-lucide="zap" class="w-5 h-5 fill-current"></i>
         </div>
+        
         <div class="flex items-center gap-2">
-          <span class="font-black text-lg sm:text-xl uppercase tracking-tighter text-black">RSCT SCHOOL</span>
+          <span class="font-black text-lg sm:text-xl uppercase tracking-tighter text-black cursor-pointer" onclick="navigateView('dashboard')">RSCT SCHOOL</span>
           <span id="cloudStatusBadge" class="hidden md:inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-black bg-emerald-400 text-black uppercase border border-black">
             <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span> LIVE CLOUD
           </span>
@@ -100,28 +188,31 @@
       </div>
 
       <!-- Synchronized Thai Clock & User Badge -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3 sm:gap-4">
         <div class="hidden sm:flex flex-col text-right border-r-2 border-black pr-3">
           <span id="liveThaiDate" class="text-xs font-black text-black">กำลังซิงค์วันที่...</span>
-          <span id="liveThaiClock" class="text-[11px] font-bold text-brand-red font-mono">--:--:-- น.</span>
+          <span id="liveThaiClock" class="text-[11px] font-bold text-theme-accent font-mono">--:--:-- น.</span>
         </div>
+
         <div class="text-right">
           <p id="userNameDisplay" class="text-xs sm:text-sm font-black text-black">กำลังโหลด...</p>
           <span id="userRoleBadge" class="text-[10px] font-black px-2 py-0.5 bg-white text-black border border-black inline-block">นักเรียน</span>
         </div>
-        <button onclick="logout()" title="ออกจากระบบ" class="p-2 bg-white hover:bg-brand-red hover:text-white border-2 border-black text-black shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer">
-          <i data-lucide="log-out" class="w-4 h-4"></i>
+
+        <!-- Quick Palette Settings Button -->
+        <button onclick="navigateView('settings')" title="ปรับแต่งธีม UI" class="p-2 bg-white hover:bg-theme-light border-2 border-black text-black brutal-sm hover:translate-x-0.5 hover:translate-y-0.5 transition cursor-pointer">
+          <i data-lucide="palette" class="w-4 h-4 text-theme-accent"></i>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- 3. MAIN CONTENT -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+  <!-- 4. VIEW: MAIN DASHBOARD -->
+  <div id="viewDashboard" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- 3.1 STATUS TICKER CARDS -->
+    <!-- 4.1 STATUS TICKER CARDS -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div class="bg-white border-2 border-black p-4 shadow-brutal relative">
+      <div class="bg-white border-2 border-black p-4 brutal-card relative">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 bg-emerald-400 border-2 border-black flex items-center justify-center shrink-0">
             <i data-lucide="calendar" class="w-5 h-5 text-black"></i>
@@ -133,7 +224,7 @@
         </div>
       </div>
 
-      <div class="bg-white border-2 border-black p-4 shadow-brutal flex items-center justify-between">
+      <div class="bg-white border-2 border-black p-4 brutal-card flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 bg-yellow-300 border-2 border-black flex items-center justify-center shrink-0">
             <i data-lucide="shopping-bag" class="w-5 h-5 text-black"></i>
@@ -143,23 +234,23 @@
             <p id="coopStatusText" class="text-xs sm:text-sm font-black text-black">เปิด (10:00-16:00)</p>
           </div>
         </div>
-        <button id="btnToggleCoop" onclick="toggleCoopCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition cursor-pointer">สลับ</button>
+        <button id="btnToggleCoop" onclick="toggleCoopCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-theme-accent border border-black transition cursor-pointer">สลับ</button>
       </div>
 
-      <div class="bg-white border-2 border-black p-4 shadow-brutal flex items-center justify-between">
+      <div class="bg-white border-2 border-black p-4 brutal-card flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 bg-brand-lightRed border-2 border-black flex items-center justify-center shrink-0 text-brand-red">
+          <div class="w-9 h-9 bg-theme-light border-2 border-black flex items-center justify-center shrink-0 text-theme-accent">
             <i data-lucide="users" class="w-5 h-5"></i>
           </div>
           <div>
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-wide">ยอดมาเรียนรวมวันนี้</p>
-            <p id="schoolAttendanceCount" class="text-xs sm:text-sm font-black text-brand-red">None</p>
+            <p id="schoolAttendanceCount" class="text-xs sm:text-sm font-black text-theme-accent">None</p>
           </div>
         </div>
-        <button onclick="editSchoolAttendanceCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-brand-red border border-black transition cursor-pointer">แก้ไข</button>
+        <button onclick="editSchoolAttendanceCloud()" class="hidden teacher-only text-[10px] bg-black text-white px-2 py-1 font-black uppercase hover:bg-theme-accent border border-black transition cursor-pointer">แก้ไข</button>
       </div>
 
-      <div class="bg-white border-2 border-black p-4 shadow-brutal flex items-center gap-3">
+      <div class="bg-white border-2 border-black p-4 brutal-card flex items-center gap-3">
         <div class="w-9 h-9 bg-sky-300 border-2 border-black flex items-center justify-center shrink-0">
           <i data-lucide="utensils" class="w-5 h-5 text-black"></i>
         </div>
@@ -170,20 +261,20 @@
       </div>
     </section>
 
-    <!-- 3.2 MAIN SPLIT GRID -->
+    <!-- 4.2 MAIN SPLIT GRID -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       <!-- LEFT 2 COLS -->
       <div class="lg:col-span-2 space-y-6">
 
         <!-- PR NEWS -->
-        <div class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal">
+        <div class="bg-white border-3 border-black p-5 sm:p-6 brutal-card">
           <div class="flex items-center justify-between border-b-2 border-black pb-3 mb-4">
             <div class="flex items-center gap-2">
-              <span class="w-3 h-3 bg-brand-red border border-black inline-block"></span>
+              <span class="w-3 h-3 bg-theme-accent border border-black inline-block"></span>
               <h3 class="font-black text-base sm:text-lg uppercase text-black">ข่าวสารประชาสัมพันธ์โรงเรียน</h3>
             </div>
-            <button onclick="openAnnounceModal()" class="hidden teacher-only px-3 py-1 bg-brand-red hover:bg-black text-white border-2 border-black text-xs font-black uppercase shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer">
+            <button onclick="openAnnounceModal()" class="hidden teacher-only px-3 py-1 bg-theme-accent hover:bg-black border-2 border-black text-xs font-black uppercase brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer">
               + เพิ่มประกาศ
             </button>
           </div>
@@ -191,7 +282,7 @@
         </div>
 
         <!-- 6 FACILITIES -->
-        <div class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal">
+        <div class="bg-white border-3 border-black p-5 sm:p-6 brutal-card">
           <div class="border-b-2 border-black pb-3 mb-4">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 bg-black border border-black inline-block"></span>
@@ -202,8 +293,8 @@
           <div id="facilitiesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
         </div>
 
-        <!-- 3.3 CLASSROOM & ATTENDANCE SYSTEM WITH 7-DAY REAL-TIME HISTORY -->
-        <div id="classroomSection" class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal space-y-4">
+        <!-- CLASSROOM & ATTENDANCE SYSTEM -->
+        <div id="classroomSection" class="bg-white border-3 border-black p-5 sm:p-6 brutal-card space-y-4">
           <div class="flex items-center justify-between flex-wrap gap-2 border-b-2 border-black pb-3">
             <div>
               <div class="flex items-center gap-2">
@@ -215,19 +306,19 @@
 
             <!-- Date & Room Selectors -->
             <div class="flex items-center gap-2 flex-wrap">
-              <select id="dateSelector" onchange="changeViewingDate(this.value)" class="bg-white border-2 border-black text-xs font-black px-2.5 py-1.5 focus:outline-none focus:bg-brand-lightRed cursor-pointer shadow-brutal-sm">
-                <!-- 7 days options -->
+              <select id="dateSelector" onchange="changeViewingDate(this.value)" class="bg-white border-2 border-black text-xs font-black px-2.5 py-1.5 focus:outline-none focus:bg-theme-light cursor-pointer brutal-sm">
+                <!-- Date Options -->
               </select>
 
-              <select id="roomSelector" onchange="changeViewingRoom(this.value)" class="bg-white border-2 border-black text-xs font-black px-2.5 py-1.5 focus:outline-none focus:bg-brand-lightRed cursor-pointer shadow-brutal-sm">
-                <!-- Rooms options -->
+              <select id="roomSelector" onchange="changeViewingRoom(this.value)" class="bg-white border-2 border-black text-xs font-black px-2.5 py-1.5 focus:outline-none focus:bg-theme-light cursor-pointer brutal-sm">
+                <!-- Room Options -->
               </select>
 
-              <button onclick="openAddRoomModal()" class="hidden teacher-only px-2 py-1.5 bg-black hover:bg-brand-red text-white border-2 border-black text-xs font-black uppercase shadow-brutal-sm transition cursor-pointer">
+              <button onclick="openAddRoomModal()" class="hidden teacher-only px-2 py-1.5 bg-black hover:bg-theme-accent text-white border-2 border-black text-xs font-black uppercase brutal-sm transition cursor-pointer">
                 + เพิ่มห้อง
               </button>
 
-              <button onclick="openAddStudentModal()" class="hidden teacher-only px-2 py-1.5 bg-brand-red hover:bg-black text-white border-2 border-black text-xs font-black uppercase shadow-brutal-sm transition cursor-pointer">
+              <button onclick="openAddStudentModal()" class="hidden teacher-only px-2 py-1.5 bg-theme-accent hover:bg-black border-2 border-black text-xs font-black uppercase brutal-sm transition cursor-pointer">
                 + เพิ่มนักเรียน
               </button>
             </div>
@@ -257,7 +348,7 @@
 
       <!-- RIGHT 1 COL: POSTS -->
       <div class="space-y-6">
-        <div class="bg-white border-3 border-black p-5 sm:p-6 shadow-brutal flex flex-col space-y-4">
+        <div class="bg-white border-3 border-black p-5 sm:p-6 brutal-card flex flex-col space-y-4">
           <div class="border-b-2 border-black pb-3">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 bg-yellow-400 border border-black inline-block"></span>
@@ -266,15 +357,15 @@
             <p class="text-xs font-bold text-slate-500 mt-0.5">Real-time Lost & Found Post Board</p>
           </div>
 
-          <div class="bg-brand-surface p-3.5 border-2 border-black space-y-2.5 shadow-brutal-sm">
-            <input id="postInputTitle" type="text" placeholder="พิมพ์ข้อความ... (เช่น ใครเห็นกระเป๋าสตางค์สีดำ)" class="w-full text-xs sm:text-sm px-3 py-2 bg-white border-2 border-black font-semibold focus:outline-none focus:bg-brand-lightRed">
+          <div class="bg-brand-surface p-3.5 border-2 border-black space-y-2.5 brutal-sm">
+            <input id="postInputTitle" type="text" placeholder="พิมพ์ข้อความ... (เช่น ใครเห็นกระเป๋าสตางค์สีดำ)" class="w-full text-xs sm:text-sm px-3 py-2 bg-white border-2 border-black font-semibold focus:outline-none focus:bg-theme-light">
             <div class="flex gap-2">
               <select id="postInputCategory" class="text-xs bg-white px-2 py-1.5 border-2 border-black font-bold focus:outline-none">
                 <option value="LOST">🔍 ตามหาของ</option>
                 <option value="FOUND">🎁 เจอของ</option>
                 <option value="HELP">🙋 ช่วยเหลือ</option>
               </select>
-              <button onclick="submitPostCloud()" class="flex-1 bg-black hover:bg-brand-red text-white text-xs font-black uppercase py-1.5 px-3 border-2 border-black transition flex items-center justify-center gap-1 shadow-brutal-sm active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
+              <button onclick="submitPostCloud()" class="flex-1 bg-black hover:bg-theme-accent text-white text-xs font-black uppercase py-1.5 px-3 border-2 border-black transition flex items-center justify-center gap-1 brutal-sm active:translate-x-0.5 active:translate-y-0.5 cursor-pointer">
                 <i data-lucide="send" class="w-3 h-3"></i> โพสต์
               </button>
             </div>
@@ -286,31 +377,194 @@
 
     </div>
 
-  </main>
+  </div>
 
-  <!-- 4. MODALS -->
+  <!-- 5. VIEW: THEME CUSTOMIZER LAB (ห้องปรับแต่งธีม UI ส่วนตัว) -->
+  <div id="viewSettings" class="hidden flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    
+    <div class="flex items-center justify-between border-b-4 border-black pb-4">
+      <div>
+        <h2 class="text-2xl font-black uppercase tracking-tight text-black flex items-center gap-2">
+          <i data-lucide="palette" class="w-7 h-7 text-theme-accent"></i>
+          <span>ห้องปรับแต่งธีม UI ส่วนบุคคล</span>
+        </h2>
+        <p class="text-xs font-bold text-slate-500 mt-1">ตั้งค่ารูปแบบหน้าตาเว็บตามใจชอบ (บันทึกเฉพาะในเครื่องของคุณ ไม่กระทบผู้อื่น)</p>
+      </div>
+
+      <button onclick="navigateView('dashboard')" class="px-3.5 py-2 bg-black hover:bg-theme-accent text-white border-2 border-black font-black uppercase text-xs flex items-center gap-1.5 brutal-sm cursor-pointer transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>กลับหน้าแรก</span>
+      </button>
+    </div>
+
+    <!-- Customizer Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Left 2 Cols: Customization Controls -->
+      <div class="md:col-span-2 space-y-6">
+
+        <!-- 1. Color Palette Presets -->
+        <div class="bg-white border-3 border-black p-5 brutal-card space-y-3">
+          <h3 class="font-black text-sm uppercase flex items-center gap-2 text-black">
+            <i data-lucide="paint-bucket" class="w-4 h-4 text-theme-accent"></i>
+            <span>1. เลือกพาเลทสีธีมหลัก (Accent Color)</span>
+          </h3>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button onclick="setThemeAccent('#dc2626', '#fee2e2')" class="p-2.5 border-2 border-black font-black text-xs text-left flex items-center gap-2 bg-red-50 hover:bg-red-100 brutal-sm transition cursor-pointer">
+              <span class="w-4 h-4 bg-red-600 border border-black inline-block"></span>
+              <span>Crimson Red</span>
+            </button>
+
+            <button onclick="setThemeAccent('#16a34a', '#dcfce7')" class="p-2.5 border-2 border-black font-black text-xs text-left flex items-center gap-2 bg-green-50 hover:bg-green-100 brutal-sm transition cursor-pointer">
+              <span class="w-4 h-4 bg-green-600 border border-black inline-block"></span>
+              <span>Cyber Lime</span>
+            </button>
+
+            <button onclick="setThemeAccent('#2563eb', '#dbeafe')" class="p-2.5 border-2 border-black font-black text-xs text-left flex items-center gap-2 bg-blue-50 hover:bg-blue-100 brutal-sm transition cursor-pointer">
+              <span class="w-4 h-4 bg-blue-600 border border-black inline-block"></span>
+              <span>Electric Blue</span>
+            </button>
+
+            <button onclick="setThemeAccent('#7c3aed', '#ede9fe')" class="p-2.5 border-2 border-black font-black text-xs text-left flex items-center gap-2 bg-purple-50 hover:bg-purple-100 brutal-sm transition cursor-pointer">
+              <span class="w-4 h-4 bg-purple-600 border border-black inline-block"></span>
+              <span>Neon Purple</span>
+            </button>
+
+            <button onclick="setThemeAccent('#ea580c', '#ffedd5')" class="p-2.5 border-2 border-black font-black text-xs text-left flex items-center gap-2 bg-orange-50 hover:bg-orange-100 brutal-sm transition cursor-pointer">
+              <span class="w-4 h-4 bg-orange-600 border border-black inline-block"></span>
+              <span>Sunset Orange</span>
+            </button>
+
+            <button onclick="setThemeAccent('#eab308', '#fef9c3')" class="p-2.5 border-2 border-black font-black text-xs text-left flex items-center gap-2 bg-yellow-50 hover:bg-yellow-100 brutal-sm transition cursor-pointer">
+              <span class="w-4 h-4 bg-yellow-500 border border-black inline-block"></span>
+              <span>Cyber Yellow</span>
+            </button>
+
+            <button onclick="setThemeAccent('#09090b', '#f4f4f5')" class="p-2.5 border-2 border-black font-black text-xs text-left flex items-center gap-2 bg-slate-100 hover:bg-slate-200 brutal-sm transition cursor-pointer">
+              <span class="w-4 h-4 bg-black border border-black inline-block"></span>
+              <span>Monochrome</span>
+            </button>
+
+            <!-- Custom Color Picker Input -->
+            <label class="p-2.5 border-2 border-black font-black text-xs text-left flex items-center justify-between bg-white hover:bg-slate-100 brutal-sm transition cursor-pointer">
+              <span class="truncate">Custom Color</span>
+              <input type="color" id="customColorInput" onchange="handleCustomColor(this.value)" class="w-5 h-5 border-0 p-0 cursor-pointer bg-transparent">
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. Background Texture Style -->
+        <div class="bg-white border-3 border-black p-5 brutal-card space-y-3">
+          <h3 class="font-black text-sm uppercase flex items-center gap-2 text-black">
+            <i data-lucide="sparkles" class="w-4 h-4 text-theme-accent"></i>
+            <span>2. ลวดลายพื้นหลังเว็บ (Background Style)</span>
+          </h3>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <button onclick="setThemePattern('pattern-dots')" class="p-2.5 border-2 border-black font-black text-xs text-center bg-white hover:bg-theme-light brutal-sm cursor-pointer">
+              • ลายจุด (Dots)
+            </button>
+            <button onclick="setThemePattern('pattern-grid')" class="p-2.5 border-2 border-black font-black text-xs text-center bg-white hover:bg-theme-light brutal-sm cursor-pointer">
+              # ลายตาราง (Grid)
+            </button>
+            <button onclick="setThemePattern('pattern-stripes')" class="p-2.5 border-2 border-black font-black text-xs text-center bg-white hover:bg-theme-light brutal-sm cursor-pointer">
+              // ลายเฉียง (Stripes)
+            </button>
+            <button onclick="setThemePattern('pattern-clean')" class="p-2.5 border-2 border-black font-black text-xs text-center bg-white hover:bg-theme-light brutal-sm cursor-pointer">
+              ◻ เรียบหรู (Clean)
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Brutalist Shadow Depth & Corner Styles -->
+        <div class="bg-white border-3 border-black p-5 brutal-card space-y-4">
+          <h3 class="font-black text-sm uppercase flex items-center gap-2 text-black">
+            <i data-lucide="sliders" class="w-4 h-4 text-theme-accent"></i>
+            <span>3. ระดับความดุดันของเงา & ความโค้งมนของกล่อง</span>
+          </h3>
+
+          <div class="space-y-3">
+            <div>
+              <p class="text-xs font-bold text-slate-600 mb-1.5">ความหนาของเงา (Shadow Depth):</p>
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="setThemeShadow(2)" class="p-2 border-2 border-black font-black text-xs bg-white hover:bg-theme-light brutal-sm cursor-pointer">บาง (2px)</button>
+                <button onclick="setThemeShadow(4)" class="p-2 border-2 border-black font-black text-xs bg-white hover:bg-theme-light brutal-sm cursor-pointer">มาตรฐาน (4px)</button>
+                <button onclick="setThemeShadow(6)" class="p-2 border-2 border-black font-black text-xs bg-white hover:bg-theme-light brutal-sm cursor-pointer">ดุดัน (6px)</button>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-xs font-bold text-slate-600 mb-1.5">ความโค้งของมุมขอบ (Border Radius):</p>
+              <div class="grid grid-cols-3 gap-2">
+                <button onclick="setThemeRadius('0px')" class="p-2 border-2 border-black font-black text-xs bg-white hover:bg-theme-light brutal-sm cursor-pointer">คมกริบ (0px)</button>
+                <button onclick="setThemeRadius('8px')" class="p-2 border-2 border-black font-black text-xs bg-white hover:bg-theme-light brutal-sm cursor-pointer">มนพอดี (8px)</button>
+                <button onclick="setThemeRadius('16px')" class="p-2 border-2 border-black font-black text-xs bg-white hover:bg-theme-light brutal-sm cursor-pointer">มนกลม (16px)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="flex justify-end">
+          <button onclick="resetThemeSettings()" class="px-4 py-2 border-2 border-black bg-slate-200 hover:bg-rose-100 hover:text-brand-red font-black text-xs uppercase brutal-sm cursor-pointer transition">
+            🔄 รีเซ็ตเป็นค่าเริ่มต้น
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Right 1 Col: Live Preview Box -->
+      <div class="space-y-4">
+        <div class="bg-white border-3 border-black p-5 brutal-card sticky top-24 space-y-3">
+          <div class="border-b-2 border-black pb-2">
+            <span class="px-2 py-0.5 text-[9px] font-black bg-theme-accent border border-black uppercase inline-block">LIVE PREVIEW</span>
+            <h4 class="font-black text-sm uppercase text-black mt-1">ตัวอย่างผลลัพธ์ธีมของคุณ</h4>
+          </div>
+
+          <div class="p-3 bg-theme-light border-2 border-black brutal-sm space-y-2">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-black text-theme-accent">RSCT PORTAL CARD</span>
+              <span class="px-1.5 py-0.5 text-[10px] font-black bg-white border border-black">DEMO</span>
+            </div>
+            <p class="text-xs font-semibold text-slate-700">นี่คือตัวอย่างการแสดงผลของสีธีม เงา และความโค้งของกล่องที่คุณเลือก</p>
+          </div>
+
+          <button class="w-full py-2 bg-theme-accent border-2 border-black text-xs font-black uppercase brutal-sm cursor-default">
+            ปุ่มกดตัวอย่าง (Sample Button)
+          </button>
+
+          <p class="text-[11px] font-bold text-slate-400 text-center">ธีมจะถูกบันทึกอัตโนมัติเมื่อท่านคลิกเปลี่ยน</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- 6. MODALS -->
   <!-- MODAL: ADD ANNOUNCEMENT -->
   <div id="announceModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] hidden items-center justify-center p-4">
-    <div class="bg-white border-4 border-black p-6 max-w-md w-full shadow-brutal-lg space-y-4 relative">
+    <div class="bg-white border-4 border-black p-6 max-w-md w-full brutal-lg space-y-4 relative">
       <div class="flex items-center justify-between border-b-2 border-black pb-2">
         <h3 class="font-black text-black text-base uppercase">เพิ่มข่าวสารประชาสัมพันธ์</h3>
-        <button onclick="closeAnnounceModal()" class="border-2 border-black p-1 hover:bg-brand-red hover:text-white cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="closeAnnounceModal()" class="border-2 border-black p-1 hover:bg-theme-accent transition cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
       <input id="annTitle" type="text" placeholder="หัวข้อข่าว (เช่น กำหนดการตรวจสุขภาพ)" class="w-full text-xs sm:text-sm px-3 py-2 bg-brand-surface border-2 border-black font-semibold focus:outline-none focus:bg-white">
       <textarea id="annContent" rows="3" placeholder="รายละเอียดประกาศ..." class="w-full text-xs sm:text-sm px-3 py-2 bg-brand-surface border-2 border-black font-semibold focus:outline-none focus:bg-white"></textarea>
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeAnnounceModal()" class="px-3 py-1.5 text-xs font-black uppercase border-2 border-black hover:bg-slate-200 cursor-pointer">ยกเลิก</button>
-        <button onclick="saveAnnouncementCloud()" class="px-4 py-1.5 text-xs font-black uppercase text-white bg-brand-red hover:bg-black border-2 border-black shadow-brutal-sm cursor-pointer">บันทึกและประกาศ</button>
+        <button onclick="saveAnnouncementCloud()" class="px-4 py-1.5 text-xs font-black uppercase bg-theme-accent hover:bg-black border-2 border-black brutal-sm cursor-pointer">บันทึกและประกาศ</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: ADD ROOM -->
   <div id="addRoomModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] hidden items-center justify-center p-4">
-    <div class="bg-white border-4 border-black p-6 max-w-sm w-full shadow-brutal-lg space-y-4 relative">
+    <div class="bg-white border-4 border-black p-6 max-w-sm w-full brutal-lg space-y-4 relative">
       <div class="flex items-center justify-between border-b-2 border-black pb-2">
         <h3 class="font-black text-black text-base uppercase">เพิ่มห้องเรียนใหม่</h3>
-        <button onclick="closeAddRoomModal()" class="border-2 border-black p-1 hover:bg-brand-red hover:text-white cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <button onclick="closeAddRoomModal()" class="border-2 border-black p-1 hover:bg-theme-accent transition cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
       <div>
         <label class="block text-xs font-black text-slate-700 mb-1">ชื่อห้องเรียน (เช่น ม.1/7 หรือ ม.5/5)</label>
@@ -318,17 +572,17 @@
       </div>
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeAddRoomModal()" class="px-3 py-1.5 text-xs font-black uppercase border-2 border-black hover:bg-slate-200 cursor-pointer">ยกเลิก</button>
-        <button onclick="saveNewRoomCloud()" class="px-4 py-1.5 text-xs font-black uppercase text-white bg-brand-red hover:bg-black border-2 border-black shadow-brutal-sm cursor-pointer">บันทึกห้อง</button>
+        <button onclick="saveNewRoomCloud()" class="px-4 py-1.5 text-xs font-black uppercase bg-theme-accent hover:bg-black border-2 border-black brutal-sm cursor-pointer">บันทึกห้อง</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: ADD STUDENT -->
   <div id="addStudentModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] hidden items-center justify-center p-4">
-    <div class="bg-white border-4 border-black p-6 max-w-md w-full shadow-brutal-lg space-y-4 relative">
+    <div class="bg-white border-4 border-black p-6 max-w-md w-full brutal-lg space-y-4 relative">
       <div class="flex items-center justify-between border-b-2 border-black pb-2">
-        <h3 class="font-black text-black text-base uppercase">เพิ่มนักเรียนเข้า <span id="addStudentRoomTitle" class="text-brand-red">ม.5/1</span></h3>
-        <button onclick="closeAddStudentModal()" class="border-2 border-black p-1 hover:bg-brand-red hover:text-white cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <h3 class="font-black text-black text-base uppercase">เพิ่มนักเรียนเข้า <span id="addStudentRoomTitle" class="text-theme-accent">ม.5/1</span></h3>
+        <button onclick="closeAddStudentModal()" class="border-2 border-black p-1 hover:bg-theme-accent transition cursor-pointer"><i data-lucide="x" class="w-4 h-4"></i></button>
       </div>
       <div class="space-y-3">
         <div class="grid grid-cols-2 gap-2">
@@ -348,16 +602,16 @@
       </div>
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeAddStudentModal()" class="px-3 py-1.5 text-xs font-black uppercase border-2 border-black hover:bg-slate-200 cursor-pointer">ยกเลิก</button>
-        <button onclick="saveNewStudentCloud()" class="px-4 py-1.5 text-xs font-black uppercase text-white bg-brand-red hover:bg-black border-2 border-black shadow-brutal-sm cursor-pointer">เพิ่มนักเรียน</button>
+        <button onclick="saveNewStudentCloud()" class="px-4 py-1.5 text-xs font-black uppercase bg-theme-accent hover:bg-black border-2 border-black brutal-sm cursor-pointer">เพิ่มนักเรียน</button>
       </div>
     </div>
   </div>
 
   <footer class="mt-auto py-5 border-t-4 border-black bg-white text-center text-xs font-bold uppercase tracking-wider text-black">
-    RSCT SCHOOL HUB © 2026 • ADILAN AND KANTAPAT
+    RSCT SCHOOL HUB © 2026 • CUSTOMIZER EDITION
   </footer>
 
-  <!-- SCRIPT LOGIC (FIREBASE SERVER TIME SYNC & REALTIME DATABASE) -->
+  <!-- SCRIPT LOGIC (THEME ENGINE, FIREBASE & CORE SYSTEM) -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAbB3lt210Cj0rd2dKjo86j9kdJzlWjn-8",
@@ -372,14 +626,13 @@
 
     let rtdb = null;
     let isCloudReady = false;
-    let serverTimeOffset = 0; // ตัวแปรชดเชยเวลาให้ตรงกับ Server Google 100%
+    let serverTimeOffset = 0;
 
     try {
       firebase.initializeApp(firebaseConfig);
       rtdb = firebase.database();
       isCloudReady = true;
 
-      // ซิงค์เวลาจากเซิร์ฟเวอร์แบบ Real-time
       rtdb.ref(".info/serverTimeOffset").on("value", snap => {
         serverTimeOffset = snap.val() || 0;
       });
@@ -387,12 +640,104 @@
       console.warn("Firebase Init Error:", e);
     }
 
-    // ฟังก์ชันดึงเวลามาตรฐานปัจจุบัน (แก้ไขปัญหาเวลาคอมกับมือถือไม่ตรงกัน)
     function getExactServerTime() {
       return Date.now() + serverTimeOffset;
     }
 
-    // --- THAI TIME & CALENDAR UTILITIES ---
+    // --- 🎨 PERSONAL THEME ENGINE (LOCALSTORAGE ONLY) ---
+    const DEFAULT_THEME = {
+      accent: '#dc2626',
+      accentLight: '#fee2e2',
+      pattern: 'pattern-dots',
+      shadow: 4,
+      radius: '0px'
+    };
+
+    let userTheme = JSON.parse(localStorage.getItem('rsct_personal_theme')) || DEFAULT_THEME;
+
+    function applyUserTheme() {
+      const root = document.documentElement;
+      root.style.setProperty('--theme-accent', userTheme.accent);
+      root.style.setProperty('--theme-accent-light', userTheme.accentLight);
+      root.style.setProperty('--theme-radius', userTheme.radius);
+      root.style.setProperty('--theme-shadow', `${userTheme.shadow}px ${userTheme.shadow}px 0px 0px #09090b`);
+      root.style.setProperty('--theme-shadow-sm', `${Math.max(2, userTheme.shadow - 2)}px ${Math.max(2, userTheme.shadow - 2)}px 0px 0px #09090b`);
+      root.style.setProperty('--theme-shadow-lg', `${userTheme.shadow + 2}px ${userTheme.shadow + 2}px 0px 0px #09090b`);
+
+      const body = document.getElementById('mainBody');
+      body.className = `min-h-screen flex flex-col font-sans ${userTheme.pattern}`;
+
+      localStorage.setItem('rsct_personal_theme', JSON.stringify(userTheme));
+    }
+
+    function setThemeAccent(accentColor, lightColor) {
+      userTheme.accent = accentColor;
+      userTheme.accentLight = lightColor;
+      applyUserTheme();
+    }
+
+    function handleCustomColor(hex) {
+      userTheme.accent = hex;
+      userTheme.accentLight = hex + '25'; // Add 15% opacity hex
+      applyUserTheme();
+    }
+
+    function setThemePattern(pat) {
+      userTheme.pattern = pat;
+      applyUserTheme();
+    }
+
+    function setThemeShadow(depth) {
+      userTheme.shadow = parseInt(depth);
+      applyUserTheme();
+    }
+
+    function setThemeRadius(rad) {
+      userTheme.radius = rad;
+      applyUserTheme();
+    }
+
+    function resetThemeSettings() {
+      userTheme = { ...DEFAULT_THEME };
+      applyUserTheme();
+      alert("รีเซ็ตการตั้งค่าธีมกลับเป็นค่าเริ่มต้นเรียบร้อยครับ!");
+    }
+
+    // --- VIEW NAVIGATION (DASHBOARD VS SETTINGS) ---
+    function navigateView(viewName) {
+      const dash = document.getElementById('viewDashboard');
+      const settings = document.getElementById('viewSettings');
+
+      if (viewName === 'settings') {
+        dash.classList.add('hidden');
+        settings.classList.remove('hidden');
+      } else {
+        settings.classList.add('hidden');
+        dash.classList.remove('hidden');
+      }
+
+      // Close sidebar after navigating
+      toggleSidebar(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleSidebar(forceState = null) {
+      const drawer = document.getElementById('sidebarDrawer');
+      const backdrop = document.getElementById('sidebarBackdrop');
+
+      const isOpen = !drawer.classList.contains('-translate-x-full');
+      const shouldOpen = (forceState !== null) ? forceState : !isOpen;
+
+      if (shouldOpen) {
+        drawer.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        drawer.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    // --- THAI TIME & CALENDAR ENGINE ---
     const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
     const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
     const THAI_DAYS_FULL = ["วันอาทิตย์", "วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์"];
@@ -412,13 +757,10 @@
       return `${dateObj.getDate()} ${THAI_MONTHS_SHORT[dateObj.getMonth()]} ${dateObj.getFullYear() + 543}`;
     }
 
-    // ฟังก์ชันคำนวณเวลาที่ผ่านไป (แม่นยำทุกเครื่อง ไม่ขึ้นกับนาฬิกาของเครื่องใดเครื่องหนึ่ง)
     function formatThaiRelativeTime(timestamp) {
       if (!timestamp) return "เมื่อสักครู่";
       const now = getExactServerTime();
       let diffSec = Math.floor((now - timestamp) / 1000);
-
-      // ป้องกันค่าติดลบกรณีมีเศษมิลลิวินาทีคลาดเคลื่อน
       if (diffSec < 0) diffSec = 0;
 
       if (diffSec < 60) return "เมื่อสักครู่";
@@ -437,7 +779,6 @@
       return `${formatThaiDateShort(d)} ${timeStr}`;
     }
 
-    // Live Thai Clock Widget (ซิงค์ตรงกันทุกเครื่อง)
     function startLiveClock() {
       function updateClock() {
         const now = new Date(getExactServerTime());
@@ -527,6 +868,7 @@
     };
 
     function init() {
+      applyUserTheme();
       startLiveClock();
       renderDateSelector();
       renderAllUI();
@@ -542,7 +884,6 @@
         listenCloudDatabase();
       }
 
-      // อัปเดตคำว่า 'นาทีที่แล้ว' บนหน้าจออัตโนมัติทุก 15 วินาที
       setInterval(() => {
         renderFeed();
         renderAnnouncements();
@@ -591,9 +932,13 @@
       document.getElementById('userNameDisplay').innerText = currentUser.name;
       const roleBadge = document.getElementById('userRoleBadge');
 
+      document.getElementById('sidebarUserName').innerText = currentUser.name;
+      document.getElementById('sidebarUserRole').innerText = currentUser.role === 'TEACHER' ? 'อาจารย์' : 'นักเรียน';
+      document.getElementById('sidebarUserRoom').innerText = currentUser.room || '-';
+
       if (currentUser.role === 'TEACHER') {
         roleBadge.innerText = `👑 อาจารย์ (${currentUser.room})`;
-        roleBadge.className = "text-[10px] font-black px-2 py-0.5 bg-brand-red text-white border border-black inline-block";
+        roleBadge.className = "text-[10px] font-black px-2 py-0.5 bg-theme-accent border border-black inline-block";
         document.querySelectorAll('.teacher-only').forEach(el => el.classList.remove('hidden'));
       } else {
         roleBadge.innerText = `🎒 นักเรียน (${currentUser.room})`;
@@ -804,7 +1149,7 @@
       PRESENT: { label: "✓ มาเรียน", bg: "bg-emerald-300 text-black border-black", next: "LEAVE_PERSONAL" },
       LEAVE_PERSONAL: { label: "📝 ลากิจ", bg: "bg-yellow-300 text-black border-black", next: "LEAVE_SICK" },
       LEAVE_SICK: { label: "💊 ลาป่วย", bg: "bg-sky-300 text-black border-black", next: "ABSENT" },
-      ABSENT: { label: "✗ ขาดเรียน", bg: "bg-brand-red text-white border-black", next: "UNCHECKED" },
+      ABSENT: { label: "✗ ขาดเรียน", bg: "bg-theme-accent border-black", next: "UNCHECKED" },
       UNCHECKED: { label: "⏳ ยังไม่ตรวจ", bg: "bg-slate-200 text-slate-700 border-black", next: "PRESENT" }
     };
 
@@ -845,7 +1190,7 @@
         if (isToday) {
           noticeEl.innerHTML = `<span class="text-emerald-700 font-black">● วันปัจจุบัน</span> ${isTeacher ? '• คุณครูสามารถคลิกเปลี่ยนสถานะได้' : ''}`;
         } else {
-          noticeEl.innerHTML = `<span class="text-brand-red font-black">🔒 บันทึกประวัติย้อนหลัง (อ่านอย่างเดียว)</span>`;
+          noticeEl.innerHTML = `<span class="text-theme-accent font-black">🔒 บันทึกประวัติย้อนหลัง (อ่านอย่างเดียว)</span>`;
         }
       }
 
@@ -875,7 +1220,7 @@
             <td class="py-2.5 px-3 font-bold text-black">${st.name}</td>
             <td class="py-2.5 px-3 text-center">
               ${isTeacher && isToday ? `
-                <button onclick="cycleStudentAttendance('${st.id}')" title="คลิกเพื่อเปลี่ยนสถานะ" class="px-2.5 py-1 text-xs font-black border-2 shadow-brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition cursor-pointer ${conf.bg}">
+                <button onclick="cycleStudentAttendance('${st.id}')" title="คลิกเพื่อเปลี่ยนสถานะ" class="px-2.5 py-1 text-xs font-black border-2 brutal-sm hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition cursor-pointer ${conf.bg}">
                   ${conf.label}
                 </button>
               ` : `
@@ -885,7 +1230,7 @@
               `}
             </td>
             <td class="py-2.5 px-3 text-right teacher-only ${isTeacher ? '' : 'hidden'}">
-              <button onclick="deleteStudentCloud('${st.id}', '${st.name}')" title="ลบนักเรียน" class="p-1 text-slate-400 hover:text-brand-red font-bold transition cursor-pointer">
+              <button onclick="deleteStudentCloud('${st.id}', '${st.name}')" title="ลบนักเรียน" class="p-1 text-slate-400 hover:text-theme-accent font-bold transition cursor-pointer">
                 <i data-lucide="trash-2" class="w-4 h-4 inline"></i>
               </button>
             </td>
@@ -898,7 +1243,7 @@
         <span class="px-2 py-0.5 border border-black bg-emerald-300 text-black">มา: ${stats.PRESENT}</span>
         <span class="px-2 py-0.5 border border-black bg-yellow-300 text-black">ลากิจ: ${stats.LEAVE_PERSONAL}</span>
         <span class="px-2 py-0.5 border border-black bg-sky-300 text-black">ลาป่วย: ${stats.LEAVE_SICK}</span>
-        <span class="px-2 py-0.5 border border-black bg-brand-red text-white">ขาด: ${stats.ABSENT}</span>
+        <span class="px-2 py-0.5 border border-black bg-theme-accent">ขาด: ${stats.ABSENT}</span>
         <span class="px-2 py-0.5 border border-black bg-slate-200 text-slate-700">ยังไม่ตรวจ: ${stats.UNCHECKED}</span>
         <span class="px-2 py-0.5 border border-black bg-white text-black">รวม: ${roomStudents.length} คน</span>
       `;
@@ -946,7 +1291,7 @@
         title,
         content,
         author: `${currentUser.name} (${currentUser.room})`,
-        timestamp: getExactServerTime() // ใช้เวลามาตรฐาน Server
+        timestamp: getExactServerTime()
       });
       renderAnnouncements();
       if (isCloudReady) rtdb.ref("school/announcements").set(localData.announcements);
@@ -976,7 +1321,7 @@
         authorRoom: currentUser.room || "ม.5/1",
         authorId: currentUser.id,
         status: "OPEN",
-        timestamp: getExactServerTime() // ใช้เวลามาตรฐาน Server
+        timestamp: getExactServerTime()
       });
 
       renderFeed();
@@ -994,7 +1339,7 @@
     function renderStatusUI() {
       const textEl = document.getElementById('coopStatusText');
       textEl.innerText = localData.isCoopOpen ? "เปิด (10:00-16:00)" : "ปิดชั่วคราว";
-      textEl.className = localData.isCoopOpen ? "text-xs sm:text-sm font-black text-black" : "text-xs sm:text-sm font-black text-brand-red";
+      textEl.className = localData.isCoopOpen ? "text-xs sm:text-sm font-black text-black" : "text-xs sm:text-sm font-black text-theme-accent";
       document.getElementById('schoolAttendanceCount').innerText = localData.schoolAttendance;
     }
 
@@ -1004,18 +1349,18 @@
       localData.facilities.forEach(fac => {
         const isAvail = fac.status === 'AVAILABLE';
         const card = document.createElement('div');
-        card.className = `p-3.5 border-2 border-black shadow-brutal-sm flex items-center justify-between ${isAvail ? 'bg-white' : 'bg-brand-lightRed/60'}`;
+        card.className = `p-3.5 border-2 border-black brutal-sm flex items-center justify-between ${isAvail ? 'bg-white' : 'bg-theme-light'}`;
         card.innerHTML = `
           <div>
             <p class="font-black text-black text-xs sm:text-sm">${fac.name}</p>
             <p class="text-[10px] font-bold text-slate-500">${fac.location}</p>
-            <p class="text-[10px] font-black mt-1 ${isAvail ? 'text-emerald-700' : 'text-brand-red'}">${fac.note}</p>
+            <p class="text-[10px] font-black mt-1 ${isAvail ? 'text-emerald-700' : 'text-theme-accent'}">${fac.note}</p>
           </div>
           <div class="text-right space-y-1">
-            <span class="px-2 py-0.5 text-xs font-black border-2 border-black inline-block ${isAvail ? 'bg-emerald-400 text-black' : 'bg-brand-red text-white'}">
+            <span class="px-2 py-0.5 text-xs font-black border-2 border-black inline-block ${isAvail ? 'bg-emerald-400 text-black' : 'bg-theme-accent'}">
               ${isAvail ? 'ว่าง' : 'ไม่ว่าง'}
             </span>
-            ${currentUser && currentUser.role === 'TEACHER' ? `<button onclick="toggleFacility(${fac.id})" class="block text-[10px] text-black hover:text-brand-red underline font-black cursor-pointer">สลับสถานะ</button>` : ''}
+            ${currentUser && currentUser.role === 'TEACHER' ? `<button onclick="toggleFacility(${fac.id})" class="block text-[10px] text-black hover:text-theme-accent underline font-black cursor-pointer">สลับสถานะ</button>` : ''}
           </div>
         `;
         grid.appendChild(card);
@@ -1028,7 +1373,7 @@
       container.innerHTML = "";
       localData.announcements.forEach((a, index) => {
         const item = document.createElement('div');
-        item.className = "p-4 bg-brand-surface border-2 border-black shadow-brutal-sm relative";
+        item.className = "p-4 bg-brand-surface border-2 border-black brutal-sm relative";
         item.innerHTML = `
           <div class="flex items-center justify-between mb-1">
             <span class="px-2 py-0.5 text-[9px] font-black bg-black text-white uppercase border border-black">NEWS RELEASE</span>
@@ -1038,7 +1383,7 @@
           <p class="text-xs text-slate-700 font-medium leading-relaxed">${a.content}</p>
           <div class="mt-2 text-[11px] font-bold text-slate-500 flex justify-between items-center border-t border-black/10 pt-2">
             <span>โดย: ${a.author}</span>
-            ${currentUser && currentUser.role === 'TEACHER' ? `<button onclick="deleteAnnounce(${index})" class="text-brand-red hover:underline text-[11px] font-black cursor-pointer">ลบประกาศ</button>` : ''}
+            ${currentUser && currentUser.role === 'TEACHER' ? `<button onclick="deleteAnnounce(${index})" class="text-theme-accent hover:underline text-[11px] font-black cursor-pointer">ลบประกาศ</button>` : ''}
           </div>
         `;
         container.appendChild(item);
@@ -1049,7 +1394,7 @@
       const feed = document.getElementById('globalFeed');
       feed.innerHTML = "";
       const badges = {
-        LOST: { text: "ตามหาของ", style: "bg-brand-red text-white" },
+        LOST: { text: "ตามหาของ", style: "bg-theme-accent" },
         FOUND: { text: "พบของ", style: "bg-emerald-400 text-black" },
         HELP: { text: "ช่วยเหลือ", style: "bg-yellow-300 text-black" }
       };
@@ -1057,7 +1402,7 @@
       localData.posts.forEach(p => {
         const isResolved = p.status === 'RESOLVED';
         const card = document.createElement('div');
-        card.className = `p-3 border-2 border-black shadow-brutal-sm transition ${isResolved ? 'bg-slate-100 opacity-65' : 'bg-white'}`;
+        card.className = `p-3 border-2 border-black brutal-sm transition ${isResolved ? 'bg-slate-100 opacity-65' : 'bg-white'}`;
         card.innerHTML = `
           <div class="flex items-center justify-between gap-2 mb-1.5">
             <span class="px-2 py-0.5 text-[9px] font-black border border-black uppercase ${badges[p.category].style}">
@@ -1068,7 +1413,7 @@
           <p class="text-xs sm:text-sm font-bold ${isResolved ? 'line-through text-slate-400' : 'text-black'} mb-2">${p.title}</p>
           <div class="flex items-center justify-between text-[11px] pt-1.5 border-t border-black/10">
             <span class="text-slate-500 font-bold">โดย ${p.authorName} (${p.authorRoom})</span>
-            ${(currentUser && (currentUser.id === p.authorId || currentUser.role === 'TEACHER')) ? `<button onclick="togglePostResolve(${p.id})" class="text-xs font-black cursor-pointer ${isResolved ? 'text-black underline' : 'text-brand-red underline'}">${isResolved ? '↩ เปิดอีกครั้ง' : '✓ ปิดโพสต์'}</button>` : (isResolved ? '<span class="text-emerald-700 font-black">✓ สิ้นสุด</span>' : '')}
+            ${(currentUser && (currentUser.id === p.authorId || currentUser.role === 'TEACHER')) ? `<button onclick="togglePostResolve(${p.id})" class="text-xs font-black cursor-pointer ${isResolved ? 'text-black underline' : 'text-theme-accent underline'}">${isResolved ? '↩ เปิดอีกครั้ง' : '✓ ปิดโพสต์'}</button>` : (isResolved ? '<span class="text-emerald-700 font-black">✓ สิ้นสุด</span>' : '')}
           </div>
         `;
         feed.appendChild(card);
